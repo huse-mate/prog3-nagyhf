@@ -15,6 +15,13 @@ public class Test {
         game.getPossibleSettlements(false).forEach(coord -> {
             System.out.println("Possible settlement " + coord);
         });
-
+        game.newRoad(new Coordinate(2, -3, 0),new Coordinate(1, -2, 1));
+        game.newRoad(new Coordinate(1, -2, 0),new Coordinate(1, -2, 1));
+        game.newRoad(new Coordinate(2, -2, 0),new Coordinate(1, -2, 1));
+        game.newRoad(new Coordinate(2, -2, 0),new Coordinate(2, -2, 1));
+        game.newRoad(new Coordinate(3, -2, 0),new Coordinate(2, -2, 1));
+        game.newRoad(new Coordinate(3, -3, 0),new Coordinate(2, -2, 1));
+        game.newRoad(new Coordinate(2, -2, 0),new Coordinate(1, -1, 1));
+        game.newRoad(new Coordinate(1, -1, 0),new Coordinate(1, -1, 1));
     }
 }

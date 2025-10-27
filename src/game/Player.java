@@ -65,7 +65,7 @@ public class Player {
         return Resource.DESERT;
     }
 
-    public void thiefAction(){
+    public void thiefSteal(){
         if(cardCount >= 7){
             int toRemove = cardCount/2;
             Map<Resource, Integer> toThrow = GameIO.chooseToThrow(this, toRemove);
