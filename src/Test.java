@@ -5,8 +5,16 @@ public class Test {
     public static void main(String[] args){
         TileMap tileMap = new TileMap();
         Game game = new Game(tileMap);
-        game.newBuilding(Building.Types.SETTLEMENT, new Coordinate(2, -3, 0));
-        game.newBuilding(Building.Types.CITY, new Coordinate(0, 1, 0));
+        game.newBuilding(Building.Types.SETTLEMENT, new Coordinate(3, -3, 0));
+        game.newRoad(new Coordinate(3, -3, 0), new Coordinate(2, -3, 1));
+        game.newRoad(new Coordinate(2, -3, 0), new Coordinate(2, -3, 1));
+
+        game.getPossibleRoads().forEach(road -> {
+            System.out.println("Possible road between " + road.getCoord1() + " and " + road.getCoord2());
+        });
+        game.getPossibleSettlements(false).forEach(coord -> {
+            System.out.println("Possible settlement " + coord);
+        });
 
     }
 }

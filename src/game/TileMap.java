@@ -10,7 +10,7 @@ public class TileMap implements Iterable<Tile> {
 
     private final Random random = new Random();
 
-    private static final int NEIGHBOR_OFFSETS[][][] = {
+    private static final int[][][] NEIGHBOR_OFFSETS = {
         {{0,0},{0,+1},{-1,+1}},
         {{0,0},{0,+1},{+1,0}}
     };

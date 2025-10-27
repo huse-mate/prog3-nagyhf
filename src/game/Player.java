@@ -1,6 +1,7 @@
 package game;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -40,6 +41,9 @@ public class Player {
     }
 
 
+    public List<Building> getBuildings() {
+        return buildings;
+    }
 
 
     public void addResource(Resource r, int n){
