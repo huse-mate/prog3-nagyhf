@@ -1,31 +1,36 @@
-import game.TileMap;
 import render.GameRender;
-import render.MainMenu;
+import render.MainFrame;
+import render.MenuPanel;
+import game.*;
 
 public class Main {
     public static void main(String[] args){
         javax.swing.SwingUtilities.invokeLater(() -> {
-            javax.swing.JFrame frame = new javax.swing.JFrame("Prog3 - Game");
-            frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-            frame.setResizable(true);
+            new MainFrame();
 
-            java.awt.CardLayout layout = new java.awt.CardLayout();
-            javax.swing.JPanel root = new javax.swing.JPanel(layout);
+            // javax.swing.JFrame frame = new javax.swing.JFrame("Prog3 - Game");
+            // frame.setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+            // frame.setResizable(true);
 
-            MainMenu menu = new MainMenu();
-            TileMap map = new TileMap();
-            GameRender game = new GameRender(map, layout, root);
+            // java.awt.CardLayout layout = new java.awt.CardLayout();
+            // javax.swing.JPanel root = new javax.swing.JPanel(layout);
 
-            root.add(menu, "menu");
-            root.add(game, "game");
+            // MenuPanel menu = new MenuPanel();
+            // TileMap map = new TileMap();
+            // Game gamePlay = new Game(map);
+            // GameRender gameRender = new GameRender(gamePlay, layout, root);
+            
 
-            menu.setupButtonActions(frame, layout, root, "game", game);
+            // root.add(menu, "menu");
+            // root.add(gameRender, "game");
 
-            frame.setContentPane(root);
-            frame.pack();
-            frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            layout.show(root, "menu"); 
+            // menu.setupButtonActions(frame, layout, root, "game", gameRender);
+
+            // frame.setContentPane(root);
+            // frame.pack();
+            // frame.setLocationRelativeTo(null);
+            // frame.setVisible(true);
+            // layout.show(root, "menu"); 
         });
     }
 }

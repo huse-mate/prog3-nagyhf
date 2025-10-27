@@ -101,8 +101,6 @@ public class Game {
                 maxRoadOwner = curPlayer;
             }
         }
-        System.out.println(maxRoadLength);
-        
     }
 
     public Set<RoadNetwork.Road> getPossibleRoads(){
