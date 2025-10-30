@@ -9,17 +9,28 @@ import IO.GameIO;
 import game.buildings.Building;
 import game.buildings.City;
 import game.buildings.Settlement;
+import render.Colors;
 
 public class Player {
     private int id;
     private EnumMap<Resource, Integer> resources;
     private int cardCount;
+    private int devCardCount;
+    private int points;
+    private int knigthsPlayed;
+    private int maxRoadLength;
     private ArrayList<Building> buildings;
+    private Colors color;
     private Random rand;
 
-    public Player(int i){
+    public Player(int i, Colors c){
         id = i;
         cardCount = 0;
+        devCardCount = 0;
+        points = 0;
+        knigthsPlayed = 0;
+        maxRoadLength = 0;
+        color = c;
         resources = new EnumMap<>(Resource.class);
         buildings = new ArrayList<>();
         for (Resource r : Resource.values()) {
@@ -45,6 +56,41 @@ public class Player {
         return buildings;
     }
 
+    public final int getId() {
+        return id;
+    }
+
+    public final int getCardCount() {
+        return cardCount;
+    }
+
+    public final int getDevCardCount(){
+        return devCardCount;
+    }
+
+    public final int getScore(){
+        return points;
+    }
+
+    public final int getKnightCount(){
+        return knigthsPlayed;
+    }
+
+    public final int getMaxRoadLength(){
+        return maxRoadLength;
+    }
+
+    public final Colors getColor(){
+        return color;
+    }
+
+    public void setMaxRoadLength(int l){
+        maxRoadLength = l;
+    }
+
+    public void addPoints(int x){
+        points += x;
+    }
 
     public void addResource(Resource r, int n){
         resources.put(r, resources.get(r) + n);

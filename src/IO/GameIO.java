@@ -1,7 +1,7 @@
 package IO;
 
 import game.Tile;
-import render.GameRender;
+import render.GameScene;
 import game.Player;
 import game.Resource;
 
@@ -11,7 +11,7 @@ import java.util.Set;
 import java.util.EnumMap;
 
 public class GameIO {
-    private static GameRender gameEngine;
+    //private static GameRender gameEngine;
     private static Random rand;
 
     public GameIO(){
@@ -20,7 +20,7 @@ public class GameIO {
 
     public static int getDiceThrow(){
         int dice = rand.nextInt(6) + rand.nextInt(6) + 2;
-        gameEngine.renderDiceThrow(dice);
+        //gameEngine.renderDiceThrow(dice);
         return dice;
     }
 
@@ -31,7 +31,7 @@ public class GameIO {
 
     public static Player chooseVictim(Player curPlayer, Set<Player> players){
         // TODO
-        return new Player(0);
+        return null;
     }
 
     public static Map<Resource, Integer> chooseToThrow(Player p, int n){

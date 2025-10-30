@@ -2,12 +2,15 @@ package game;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import IO.*;
 import game.buildings.Building;
 import game.buildings.City;
 import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
+import render.Colors;
 
 public class Game {
     private TileMap tileMap;
@@ -19,21 +22,34 @@ public class Game {
     private int maxRoadLength;
     private Player maxRoadOwner;
 
-    public Game(TileMap tileMap){
-        this.tileMap = tileMap;
+    public Game(){
+        tileMap = new TileMap();
         players = new ArrayList<>();
-        points = new HashMap<>();
         roads = new RoadNetwork();
-        for(int i=0;i<4;i++){
-            Player newPlayer = new Player(i);
-            players.add(newPlayer);
-            points.put(newPlayer, 0);
-        }
+        
+        Player newPlayer1 = new Player(0, Colors.PLAYER1_COLOR);
+        players.add(newPlayer1);
+        Player newPlayer2 = new Player(1, Colors.PLAYER2_COLOR);
+        players.add(newPlayer2);
+        Player newPlayer3 = new Player(2, Colors.PLAYER3_COLOR);
+        players.add(newPlayer3);
+        Player newPlayer4 = new Player(3, Colors.PLAYER4_COLOR);
+        players.add(newPlayer4);
+        
+
         curPlayer = players.get(0);
         curIndex = 0;
 
         maxRoadLength = 0;
         maxRoadOwner = curPlayer;
+    }
+
+    public final TileMap getTileMap(){
+        return tileMap;
+    }
+
+    public final List<Player> getPlayers() {
+        return players;
     }
 
     
@@ -75,7 +91,7 @@ public class Game {
     }
 
     public void newBuilding(Building.Types type, Coordinate loc){
-        points.put(curPlayer, points.get(curPlayer)+1);
+        curPlayer.addPoints(1);
         ArrayList<Tile> neighbours = new ArrayList<>(tileMap.getNeighbouringTiles(loc));
         Building newBuild;
         if(type == Building.Types.SETTLEMENT){
@@ -93,11 +109,12 @@ public class Game {
     public void newRoad(Coordinate c1, Coordinate c2){
         roads.newRoad(curPlayer, c1, c2);
         int maxPlayerLength = roads.getLongestPath(curPlayer);
+        curPlayer.setMaxRoadLength(maxPlayerLength);
         if(maxPlayerLength > maxRoadLength){
             maxRoadLength = maxPlayerLength;
             if(maxRoadOwner != curPlayer && maxRoadLength >= 5){
-                points.put(maxRoadOwner, points.get(maxRoadOwner)-2);
-                points.put(curPlayer, points.get(curPlayer)+2);
+                maxRoadOwner.addPoints(-2);
+                curPlayer.addPoints(2);
                 maxRoadOwner = curPlayer;
             }
         }
