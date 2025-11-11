@@ -43,5 +43,7 @@ public abstract class Building {
         return java.util.Objects.hash(owner, coordinate);
     }
 
-    
+    public Coordinate getCoordinate() {
+        return coordinate;
+    }
 }

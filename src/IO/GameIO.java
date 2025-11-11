@@ -6,22 +6,26 @@ import game.Player;
 import game.Resource;
 
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.EnumMap;
 
 public class GameIO {
-    //private static GameRender gameEngine;
-    private static Random rand;
+    private static GameScene gameScene;
 
-    public GameIO(){
-        // TODO
+    private GameIO() { /* prevent instantiation */ }
+
+    public static void setGameScene(GameScene gs){
+        gameScene = gs;
+    }
+
+
+    public static void beginTurn() {
+        if (gameScene != null) gameScene.beginTurn();
     }
 
     public static int getDiceThrow(){
-        int dice = rand.nextInt(6) + rand.nextInt(6) + 2;
-        //gameEngine.renderDiceThrow(dice);
-        return dice;
+        if (gameScene == null) return 0;
+        return gameScene.waitForDiceThrow();
     }
 
     public static Tile getThiefMove(){

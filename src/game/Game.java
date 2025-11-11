@@ -1,7 +1,6 @@
 package game;
 import java.util.ArrayList;
 import java.util.Set;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,12 +10,12 @@ import game.buildings.City;
 import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
 import render.Colors;
+import javax.swing.SwingUtilities;
 
 public class Game {
     private TileMap tileMap;
     private RoadNetwork roads;
     private ArrayList<Player> players;
-    private HashMap<Player, Integer> points;
     private Player curPlayer;
     private int curIndex;
     private int maxRoadLength;
@@ -26,7 +25,7 @@ public class Game {
         tileMap = new TileMap();
         players = new ArrayList<>();
         roads = new RoadNetwork();
-        
+
         Player newPlayer1 = new Player(0, Colors.PLAYER1_COLOR);
         players.add(newPlayer1);
         Player newPlayer2 = new Player(1, Colors.PLAYER2_COLOR);
@@ -41,7 +40,7 @@ public class Game {
         curIndex = 0;
 
         maxRoadLength = 0;
-        maxRoadOwner = curPlayer;
+        maxRoadOwner = null;
     }
 
     public final TileMap getTileMap(){
@@ -52,30 +51,56 @@ public class Game {
         return players;
     }
 
+    public final Map<Coordinate, Player> getBuildingMap(){
+        return roads.getBuildingMap();
+    }
+
+    public List<RoadNetwork.Road> getRoads() {
+        return roads.getRoads();
+    }
+
+    public Set<RoadNetwork.Road> getPossibleRoads(){
+        return roads.getPossibleRoads(curPlayer);
+    }
     
+    public Player getCurrentPlayer() {
+        return curPlayer;
+    }
+
+    public List<RoadNetwork.Road> getAllRoads() {
+        return roads.getAllRoads();
+    }
 
     public void turn(){
+        GameIO.beginTurn();
+        // start the turn - enable UI elements via GameIO and perform dice throw
         diceThrow();
 
-       
-        
-        nextPlayer();        
+        nextPlayer();
     }
 
     public void diceThrow(){
-        int dice = GameIO.getDiceThrow();
-        if(dice == 7){
-            for (Player p : players) {
-                p.thiefSteal();
-            }
-            thiefMovement(GameIO.getThiefMove(), curPlayer);
-        } else {
-            for (Tile t : tileMap) {
-                if(t.getNum() == dice){
-                    t.giveResources();
+
+        // Wait for the dice on a background thread so we don't block the EDT
+        new Thread(() -> {
+            int dice = GameIO.getDiceThrow();
+            if(dice == 7){
+                for (Player p : players) {
+                    p.thiefSteal();
+                }
+                thiefMovement(GameIO.getThiefMove(), curPlayer);
+            } else {
+                for (Tile t : tileMap) {
+                    if(t.getNum() == dice){
+                        t.giveResources();
+                    }
                 }
             }
-        }
+            // schedule UI update on EDT (GameLoop / GameScene will pick this up)
+            SwingUtilities.invokeLater(() -> {
+                // no-op placeholder: callers can refresh UI when appropriate
+            });
+        }, "DiceWaitThread").start();
     }
 
     public void thiefMovement(Tile dest, Player curPlayer){
@@ -86,8 +111,11 @@ public class Game {
             }
         }
         Set<Player> stealFrom = dest.addThief(curPlayer);
-        Resource loot = GameIO.chooseVictim(curPlayer, stealFrom).removeRandomResource();
-        curPlayer.addResource(loot, 1);
+        Player victim = GameIO.chooseVictim(curPlayer, stealFrom);
+        if (victim != null) {
+            Resource loot = victim.removeRandomResource();
+            if (loot != null) curPlayer.addResource(loot, 1);
+        }
     }
 
     public void newBuilding(Building.Types type, Coordinate loc){
@@ -96,11 +124,17 @@ public class Game {
         Building newBuild;
         if(type == Building.Types.SETTLEMENT){
             newBuild = new Settlement(curPlayer, loc, neighbours);
+            curPlayer.addResource(Resource.WOOD, -1);
+            curPlayer.addResource(Resource.BRICK, -1);
+            curPlayer.addResource(Resource.WOOL, -1);
+            curPlayer.addResource(Resource.WHEAT, -1);
         } else {
             newBuild = new City(curPlayer, loc, neighbours);
+            curPlayer.addResource(Resource.WHEAT, -2);
+            curPlayer.addResource(Resource.ORE, -3);
         }
         curPlayer.addBuilding(newBuild);
-        roads.newBuilding(loc);
+        roads.newBuilding(loc, curPlayer);
         for (Tile tile : neighbours) {
             tile.addBuilding(newBuild);
         }
@@ -108,21 +142,21 @@ public class Game {
 
     public void newRoad(Coordinate c1, Coordinate c2){
         roads.newRoad(curPlayer, c1, c2);
+        curPlayer.addResource(Resource.BRICK, -1);
+        curPlayer.addResource(Resource.WOOD, -1);
         int maxPlayerLength = roads.getLongestPath(curPlayer);
         curPlayer.setMaxRoadLength(maxPlayerLength);
         if(maxPlayerLength > maxRoadLength){
             maxRoadLength = maxPlayerLength;
             if(maxRoadOwner != curPlayer && maxRoadLength >= 5){
-                maxRoadOwner.addPoints(-2);
+                if(maxRoadOwner != null)
+                    maxRoadOwner.addPoints(-2);
                 curPlayer.addPoints(2);
                 maxRoadOwner = curPlayer;
             }
         }
     }
 
-    public Set<RoadNetwork.Road> getPossibleRoads(){
-        return roads.getPossibleRoads(curPlayer);
-    }
 
     public Set<Coordinate> getPossibleSettlements(boolean start){
         return roads.getPossibleSettlements(curPlayer, start);
@@ -135,5 +169,9 @@ public class Game {
             curIndex++;
         }
         curPlayer = players.get(curIndex);
+    }
+
+    public void debugGiveResources(Resource r, int n){
+        curPlayer.addResource(r, n);
     }
 }
