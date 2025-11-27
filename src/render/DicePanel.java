@@ -4,9 +4,13 @@ import javax.swing.*;
 import java.awt.*;
 
 
-public class DicePanel extends JButton {
+public class DicePanel extends JPanel {
     private final transient Image diceImage = new ImageIcon(new java.io.File("assets/dice.png").getAbsolutePath()).getImage();
     private final transient java.util.Random rand = new java.util.Random();
+
+    private JButton throwButton;
+    private JButton endTurnButton;
+    private Runnable endTurnListener;
 
     private boolean canThrowDice;
     private int value = 0;
@@ -15,22 +19,38 @@ public class DicePanel extends JButton {
     private transient boolean hasNewThrow = false;
 
     public DicePanel(){
-        setPreferredSize(new Dimension(200,200));
-        setFocusPainted(false);       // no focus outline
-        setBorderPainted(false);      // no rectangular border
-        setContentAreaFilled(false);  // we'll paint the shape manually
+        setPreferredSize(new Dimension(200,300));
         setOpaque(false);
-        addActionListener( e -> {
+        throwButton = new JButton("0");
+        throwButton.setPreferredSize(new Dimension(200,200));
+        endTurnButton = new JButton("End Turn");
+        endTurnButton.setPreferredSize(new Dimension(200,80));
+
+        throwButton.setFont(new Font("Arial", Font.BOLD, 72));
+        
+        throwButton.addActionListener( e -> {
             if(!canThrowDice) return;
             this.value = rand.nextInt(6) + rand.nextInt(6) + 2;
             canThrowDice = false;
             synchronized (throwLock) {
                 hasNewThrow = true;
                 throwLock.notifyAll();
+
             }
-            
             repaint();
         });
+
+        endTurnButton.addActionListener(e -> {
+            // disable the end-turn button immediately to prevent double-press
+            endTurnButton.setEnabled(false);
+            if (endTurnListener != null) {
+                endTurnListener.run();
+            }
+        });
+
+
+        add(throwButton);
+        add(endTurnButton);
     }
 
     public void beginTurn() {
@@ -47,27 +67,26 @@ public class DicePanel extends JButton {
         }
     }
 
+    /** Enable/disable the End Turn button from outside (e.g., after a throw). */
+    public void setEndTurnEnabled(boolean enabled) {
+        endTurnButton.setEnabled(enabled);
+    }
+
+    public void setDiceButtonEnabled(boolean enabled) {
+        throwButton.setEnabled(enabled);
+    }
+
+    /**
+     * Register a callback that runs when the End Turn button is pressed.
+     */
+    public void setEndTurnListener(Runnable listener) {
+        this.endTurnListener = listener;
+    }
+
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
-
-        if(canThrowDice) {
-            if (getModel().isRollover()) {
-                g2.setColor(Colors.PRESSED_SETTLEMENT_COLOR.val);
-            } else {
-                g2.setColor(Colors.POSSIBLE_SETTLEMENT_COLOR.val);
-            }
-        } else {
-            g2.setColor(Colors.MAP_BACKGROUND_COLOR.val);
-        }
-        g2.fillRect(0, 0, getWidth(), getHeight());
-
-        g2.setColor(Color.BLACK);
-        g2.setFont(new Font("Arial", Font.BOLD, 48));
-        g2.drawString(String.valueOf(value), getWidth() / 2 - 12, getHeight() / 2 +12);
-        // if (diceImage != null) {
-        //     g.drawImage(diceImage, 0, 0, getWidth(), getHeight(), this);
-        // }
+        throwButton.setText(Integer.toString(value));
     }
 }

@@ -9,6 +9,7 @@ public enum Colors {
     SUBTITLE_COLOR(new Color(0x000000)),
     BACKGROUND_COLOR(new Color(0xfef498)),
     MAP_BACKGROUND_COLOR(new Color(0x1167a6)),
+    MAP_BORDER_COLOR(new Color(0x000000)),
     PLAYERPANEL_COLOR(new Color(0xfef498)),
     HIGHLIGHTED_PLAYERPANEL_COLOR(new Color(0xfefdd2)),
 
@@ -18,6 +19,8 @@ public enum Colors {
     PRESSED_CITY_COLOR(new Color(0xaaaaaa)),
     POSSIBLE_ROAD_COLOR(new Color(0xd3d3d3)),
     PRESSED_ROAD_COLOR(new Color(0xaaaaaa)),
+
+    TILE_NUMBER_COLOR(new Color(0xffffff)),
 
     PLAYER1_COLOR(new Color(0x00ff00)),
     PLAYER2_COLOR(new Color(0x0000ff)),

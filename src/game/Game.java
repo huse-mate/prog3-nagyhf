@@ -1,5 +1,6 @@
 package game;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,6 @@ import game.buildings.City;
 import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
 import render.Colors;
-import javax.swing.SwingUtilities;
 
 public class Game {
     private TileMap tileMap;
@@ -72,50 +72,76 @@ public class Game {
     }
 
     public void turn(){
+        // enable UI for dice
         GameIO.beginTurn();
-        // start the turn - enable UI elements via GameIO and perform dice throw
+
+        // wait for dice (this blocks inside GameIO until user clicks)
         diceThrow();
 
+        // notify UI that dice throw and its effects are done
+        GameIO.diceThrowEnd();
+
+        // now wait until the player presses End Turn
+        GameIO.waitForEndTurn();
+
+        // advance to next player
         nextPlayer();
     }
 
     public void diceThrow(){
-
-        // Wait for the dice on a background thread so we don't block the EDT
-        new Thread(() -> {
-            int dice = GameIO.getDiceThrow();
-            if(dice == 7){
-                for (Player p : players) {
-                    p.thiefSteal();
-                }
-                thiefMovement(GameIO.getThiefMove(), curPlayer);
-            } else {
-                for (Tile t : tileMap) {
-                    if(t.getNum() == dice){
-                        t.giveResources();
-                    }
+        int dice = GameIO.getDiceThrow();
+        if(dice == 7){
+            for (Player p : players) {
+                p.thiefSteal();
+            }
+            thiefMovement(curPlayer);
+        } else {
+            for (Tile t : tileMap) {
+                if(t.getNum() == dice){
+                    t.giveResources();
                 }
             }
-            // schedule UI update on EDT (GameLoop / GameScene will pick this up)
-            SwingUtilities.invokeLater(() -> {
-                // no-op placeholder: callers can refresh UI when appropriate
-            });
-        }, "DiceWaitThread").start();
+        }
     }
 
-    public void thiefMovement(Tile dest, Player curPlayer){
+    public void thiefMovement(Player curPlayer){
         for (Tile t : tileMap) {
             if(t.getThief()){
                 t.removeThief();
                 break;
             }
         }
-        Set<Player> stealFrom = dest.addThief(curPlayer);
-        Player victim = GameIO.chooseVictim(curPlayer, stealFrom);
-        if (victim != null) {
+        GameIO.thiefMovementStart();
+        GameIO.waitForThiefMovementEnd();
+
+        Set<Player> victims = getThiefVictims();
+        
+        victims.forEach( victim -> {
             Resource loot = victim.removeRandomResource();
             if (loot != null) curPlayer.addResource(loot, 1);
-        }
+        });
+    }
+
+    public Set<Player> getThiefVictims(){
+        Set<Player> victims = new HashSet<>();
+        players.forEach( p -> {
+            if(p != curPlayer){
+                boolean adjacentToThief = false;
+                for (Building b : p.getBuildings()) {
+                    for (Tile nb : tileMap.getNeighbouringTiles(b.getCoordinate())) {
+                        if (nb.getThief()) {
+                            adjacentToThief = true;
+                            break;
+                        }
+                    }
+                    if (adjacentToThief) {
+                        victims.add(p);
+                        break;
+                    }
+                }
+            }
+        }); 
+        return victims;
     }
 
     public void newBuilding(Building.Types type, Coordinate loc){

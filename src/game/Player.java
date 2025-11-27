@@ -24,6 +24,7 @@ public class Player {
     private Random rand;
 
     public Player(int i, Colors c){
+        rand = new Random();
         id = i;
         cardCount = 0;
         devCardCount = 0;
@@ -62,6 +63,10 @@ public class Player {
 
     public final int getCardCount() {
         return cardCount;
+    }
+
+    public final int getResourceCount(Resource r){
+        return resources.get(r);
     }
 
     public final int getDevCardCount(){
@@ -114,9 +119,8 @@ public class Player {
     public void thiefSteal(){
         if(cardCount >= 7){
             int toRemove = cardCount/2;
-            Map<Resource, Integer> toThrow = GameIO.chooseToThrow(this, toRemove);
-            for (Resource r : Resource.values()) {
-                resources.put(r,resources.get(r) - toThrow.get(r));
+            for (int i = 0; i < toRemove; i++) {
+                removeRandomResource();
             }
         }
     }

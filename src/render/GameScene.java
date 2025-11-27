@@ -2,6 +2,7 @@ package render;
 
 import javax.swing.*;
 
+import IO.GameIO;
 import game.*;
 
 import java.awt.*;
@@ -22,9 +23,16 @@ public class GameScene extends BackgroundPanel{
         materialsPanel = new MaterialsPanel();
         gamePanel = new GamePanel(frame, game);
         dicePanel = new DicePanel();
+        // wire end-turn button to notify the game's end-turn waiter
+        this.game = game;
+        dicePanel.setEndTurnListener(() -> {
+            // notify the currently-running turn to finish
+            GameIO.notifyEndTurn();
+            // start the next player's turn off the EDT so we don't block UI
+            new Thread(() -> game.turn(), "Game-Turn-Thread").start();
+        });
         playersPanel = new PlayersPanel(frame, game);
         tradePanel = new TradePanel();
-        this.game = game;
 
         setLayout(new BorderLayout());
 
@@ -44,20 +52,63 @@ public class GameScene extends BackgroundPanel{
         game.getPlayers().forEach( player -> {
             playersPanel.updateStatus(player);
         });
+        playersPanel.highlightCurrentPlayer(game.getCurrentPlayer());
         materialsPanel.updateStatus(game.getCurrentPlayer());
     }
 
 
     public void beginTurn() {
-        dicePanel.beginTurn();
+        // disable building and endTurn while waiting for dice
+        setBuildingEnabled(false);
+        setEndTurnEnabled(false);
+        setDiceButtonEnabled(true);
+        repaint();
     }
 
     public int waitForDiceThrow() {
         try {
-            return dicePanel.takeThrow();
+            int val = dicePanel.takeThrow();
+            return val;
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return 0;
+        }
+    }
+
+    public void thiefMovementStart() {
+        if (gamePanel != null) {
+            gamePanel.thiefMovementStart();
+        }
+    }
+
+    public void thiefMovementEnd() {
+        if (gamePanel != null) {
+            gamePanel.thiefMovementEnd();
+            setBuildingEnabled(true);
+            setEndTurnEnabled(true);
+        }
+    }
+
+     /** Enable/disable the End Turn button from outside (e.g., after a throw). */
+
+    public void setEndTurnEnabled(boolean enabled) {
+        if (dicePanel != null) {
+            dicePanel.setEndTurnEnabled(enabled);
+        }
+    }
+
+    public void setBuildingEnabled(boolean enabled) {
+        if (gamePanel != null) {
+            gamePanel.setBuildingEnabled(enabled);
+        }
+    }
+
+    public void setDiceButtonEnabled(boolean enabled) {
+        if (dicePanel != null) {
+            dicePanel.setDiceButtonEnabled(enabled);
+            if (enabled) {
+                dicePanel.beginTurn();
+            }
         }
     }
 

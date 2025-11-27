@@ -24,7 +24,8 @@ public class Main {
 
             GameLoop gameLoop = new GameLoop(game, frame.getGameScene());
             gameLoop.start();
-            game.turn();
+            // start the first turn on a background thread so the EDT stays responsive
+            new Thread(() -> game.turn(), "Game-Initial-Turn").start();
 
         });
     }

@@ -9,6 +9,7 @@ import game.buildings.Settlement;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 
 
@@ -18,11 +19,13 @@ public class GamePanel extends JPanel {
 	private Game game;
 	private HashMap<Coordinate, BuildingButton> buildingButtonMap;
 	private HashMap<RoadNetwork.Road, RoadButton> roadButtonMap;
+	private HashMap<Tile, TileButton> tileButtonMap;
 
 	private static final int SCREEN_SIZE = 900;
 	private static final int NUMBER_SIZE = 70;
 	private static final int TILE_SIZE = 200;
 	private static final int TILE_GAP = 2;
+	private static final int TILE_BUTTON_SIZE = 60;
 
 	private static final int BUILDING_RADIUS = 15;
 	private static final int[] BUILDING_OFFSET_X = { 0, (int)(TILE_SIZE*0.43301)};
@@ -33,12 +36,14 @@ public class GamePanel extends JPanel {
 		this.game = game;
 		buildingButtonMap = new HashMap<>();
 		roadButtonMap = new HashMap<>();
+		tileButtonMap = new HashMap<>();
         setPreferredSize(new Dimension(SCREEN_SIZE, SCREEN_SIZE));
 		setBackground(Colors.MAP_BACKGROUND_COLOR.val);
-		setOpaque(false);
+		setBorder(BorderFactory.createLineBorder(Colors.MAP_BORDER_COLOR.val, 2));
 		setLayout(null);
 		createBuildingButtons();
 		createRoadButtons();
+		createTileButtons(game.getTileMap());
     }
 
     @Override
@@ -88,8 +93,7 @@ public class GamePanel extends JPanel {
 
 			Tile t = entry.getValue();
 			g.drawImage(getTileTexture(t), drawTileX, drawTileY, tileSizeX, tileSizeY, this);
-			g.drawImage(getNumberTexture(t), drawNumberX, drawNumberY, NUMBER_SIZE, NUMBER_SIZE, this);
-
+			// g.drawImage(getNumberTexture(t), drawNumberX, drawNumberY, NUMBER_SIZE, NUMBER_SIZE, this);
 		}
 	}
 
@@ -130,6 +134,48 @@ public class GamePanel extends JPanel {
 
 			add(roadButton);
 		}
+	}
+
+	private void createTileButtons(TileMap map){  
+		for (Entry<Coordinate, Tile> entry : map.entries()) {
+			Coordinate c = entry.getKey();
+			Coordinate screenCoord = convertToScreenCoord(c);
+			TileButton tileButton = new TileButton(entry.getValue(), TILE_BUTTON_SIZE/2);
+			tileButton.setBounds(screenCoord.getX()- TILE_BUTTON_SIZE/2, screenCoord.getY()- TILE_BUTTON_SIZE/2, TILE_BUTTON_SIZE, TILE_BUTTON_SIZE);
+			add(tileButton);
+			tileButtonMap.put(entry.getValue(), tileButton);
+		}
+	}
+
+	/**
+	 * Enable or disable all BuildingButton and RoadButton components on this panel.
+	 */
+	public void setBuildingEnabled(boolean enabled) {
+		for (BuildingButton bb : buildingButtonMap.values()) {
+			bb.setEnabled(enabled);
+		}
+		for (RoadButton rb : roadButtonMap.values()) {
+			rb.setEnabled(enabled);
+		}
+		repaint();
+	}
+
+	public void thiefMovementStart() {
+		for (Map.Entry<Tile, TileButton> entry : tileButtonMap.entrySet()) {
+			TileButton tb = entry.getValue();
+			tb.setEnabled(true);
+		}
+		setBuildingEnabled(false);
+		frame.getGameScene().setEndTurnEnabled(false);
+		repaint();
+	}
+
+	public void thiefMovementEnd() {
+		for (Map.Entry<Tile, TileButton> entry : tileButtonMap.entrySet()) {
+			TileButton tb = entry.getValue();
+			tb.setEnabled(false);
+		}
+		repaint();
 	}
 
 	private Coordinate convertToScreenCoord(Coordinate coord){
@@ -245,53 +291,6 @@ public class GamePanel extends JPanel {
 
 
 
-
-
-
-
-
-	private Image getNumberTexture(Tile t){
-		Image numberImage;
-		switch (t.getNum()) {
-			case 2:
-				numberImage = new ImageIcon(new java.io.File("assets/number2.png").getAbsolutePath()).getImage();
-				break;
-			case 3:
-				numberImage = new ImageIcon(new java.io.File("assets/number3.png").getAbsolutePath()).getImage();
-				break;
-			case 4:
-				numberImage = new ImageIcon(new java.io.File("assets/number4.png").getAbsolutePath()).getImage();
-				break;
-			case 5:
-				numberImage = new ImageIcon(new java.io.File("assets/number5.png").getAbsolutePath()).getImage();
-				break;
-			case 6:
-				numberImage = new ImageIcon(new java.io.File("assets/number6.png").getAbsolutePath()).getImage();
-				break;
-			case 7:
-				numberImage = new ImageIcon().getImage();
-				break;
-			case 8:
-				numberImage = new ImageIcon(new java.io.File("assets/number8.png").getAbsolutePath()).getImage();
-				break;
-			case 9:
-				numberImage = new ImageIcon(new java.io.File("assets/number9.png").getAbsolutePath()).getImage();
-				break;
-			case 10:
-				numberImage = new ImageIcon(new java.io.File("assets/number10.png").getAbsolutePath()).getImage();
-				break;
-			case 11:
-				numberImage = new ImageIcon(new java.io.File("assets/number11.png").getAbsolutePath()).getImage();
-				break;
-			case 12:
-				numberImage = new ImageIcon(new java.io.File("assets/number12.png").getAbsolutePath()).getImage();
-				break;
-			default:
-				numberImage = new ImageIcon(new java.io.File("assets/number.png").getAbsolutePath()).getImage();
-				break;
-		}
-		return numberImage;
-	}
 
 	private Image getTileTexture(Tile t){
 		Image tileImage;

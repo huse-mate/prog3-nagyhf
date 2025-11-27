@@ -56,16 +56,8 @@ public class Tile {
     }
 
 
-    public Set<Player> addThief(Player curPlayer){
+    public void addThief(){
         thief = true;
-        Set<Player> canStealFrom = new HashSet<>();
-        for (Building b : buildings) {
-            Player owner = b.getOwner();
-            if(curPlayer != owner){
-                canStealFrom.add(owner);
-            }
-        }
-        return canStealFrom;
     }
     public void removeThief(){
         thief = false;
