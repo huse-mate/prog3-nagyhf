@@ -2,8 +2,8 @@ package render;
 
 import javax.swing.*;
 
-import IO.GameIO;
 import game.*;
+import io.GameIO;
 
 import java.awt.*;
 
@@ -17,6 +17,9 @@ public class GameScene extends BackgroundPanel{
     private DicePanel dicePanel;
     private PlayersPanel playersPanel;
     private TradePanel tradePanel;
+
+    // width reserved for left/right side panels; avoids negative insets
+    private static final int SIDEWIDTH = 450;
 
     public GameScene(MainFrame frame, Game game) {
         super();
@@ -32,20 +35,20 @@ public class GameScene extends BackgroundPanel{
             new Thread(() -> game.turn(), "Game-Turn-Thread").start();
         });
         playersPanel = new PlayersPanel(frame, game);
-        tradePanel = new TradePanel();
+        tradePanel = new TradePanel(game.getPlayers());
 
         setLayout(new BorderLayout());
 
         JPanel gameContainer = new JPanel(new GridBagLayout());
         gameContainer.add(gamePanel);
         gameContainer.setOpaque(false);
-        add(gameContainer, BorderLayout.CENTER);
+        
 
         add(setupTop(), BorderLayout.NORTH);
-
         add(setupRightSide(), BorderLayout.EAST);
         add(setupLeftSide(), BorderLayout.WEST);
         add(setupBottom(), BorderLayout.SOUTH);
+        add(gameContainer, BorderLayout.CENTER);
     }
 
     public void updateStatus(){
@@ -54,15 +57,23 @@ public class GameScene extends BackgroundPanel{
         });
         playersPanel.highlightCurrentPlayer(game.getCurrentPlayer());
         materialsPanel.updateStatus(game.getCurrentPlayer());
+        repaint();
     }
 
+    public void gameStartSequenceBegin() {
+        gamePanel.setInStartSequence(true);
+    }
+    
+    public void gameStartSequenceEnd() {
+        gamePanel.setInStartSequence(false);
+    }
 
     public void beginTurn() {
         // disable building and endTurn while waiting for dice
         setBuildingEnabled(false);
         setEndTurnEnabled(false);
         setDiceButtonEnabled(true);
-        repaint();
+        setTradingEnabled(false);
     }
 
     public int waitForDiceThrow() {
@@ -84,8 +95,6 @@ public class GameScene extends BackgroundPanel{
     public void thiefMovementEnd() {
         if (gamePanel != null) {
             gamePanel.thiefMovementEnd();
-            setBuildingEnabled(true);
-            setEndTurnEnabled(true);
         }
     }
 
@@ -100,6 +109,12 @@ public class GameScene extends BackgroundPanel{
     public void setBuildingEnabled(boolean enabled) {
         if (gamePanel != null) {
             gamePanel.setBuildingEnabled(enabled);
+        }
+    }
+
+    public void setTradingEnabled(boolean enabled) {
+        if (tradePanel != null) {
+            tradePanel.setEnabled(enabled);
         }
     }
 
@@ -120,12 +135,9 @@ public class GameScene extends BackgroundPanel{
         dice.gridy = 1;
         dice.weighty = 0.4;
         dice.anchor = GridBagConstraints.CENTER;
-        dice.insets = new Insets(0, 0, 0, 150);
+        int insets = Math.max(0, (SIDEWIDTH - dicePanel.getPreferredSize().width) / 2);
+        dice.insets = new Insets(0, insets, 0, insets);
 
-        GridBagConstraints rightFiller = new GridBagConstraints();
-        rightFiller.gridx = 0;
-        rightFiller.gridy = 1;
-        rightFiller.weightx = 0.1;
 
         GridBagConstraints rightTop = new GridBagConstraints();
         rightTop.gridx = 0;
@@ -154,7 +166,8 @@ public class GameScene extends BackgroundPanel{
         trade.gridy = 1;
         trade.weighty = 0.4;
         trade.anchor = GridBagConstraints.CENTER;
-        trade.insets = new Insets(0, 150, 0, 0);
+        int insets = Math.max(0, (SIDEWIDTH - tradePanel.getPreferredSize().width) / 2);
+        trade.insets = new Insets(0, insets, 0, insets);
 
         GridBagConstraints leftTop = new GridBagConstraints();
         leftTop.gridx = 0;

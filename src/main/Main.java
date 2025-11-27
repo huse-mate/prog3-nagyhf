@@ -1,31 +1,24 @@
 package main;
 
 import render.MainFrame;
-import IO.GameIO;
 import game.*;
-import game.buildings.Building;
+import io.GameIO;
 
 public class Main {
     public static void main(String[] args){
         javax.swing.SwingUtilities.invokeLater(() -> {
             Game game = new Game();
             MainFrame frame = new MainFrame(game);
-            GameIO.setGameScene(frame.getGameScene());
+            GameIO.setGameScene(game, frame.getGameScene());
 
-            game.debugGiveResources(Resource.WOOD, 5);
-            game.debugGiveResources(Resource.BRICK, 5);
-            game.debugGiveResources(Resource.WOOL, 5);
-            game.debugGiveResources(Resource.WHEAT, 5);
-            game.debugGiveResources(Resource.ORE, 5);
-
-            game.newBuilding(Building.Types.SETTLEMENT, new Coordinate(-1,0, 0));
-            game.newRoad(new Coordinate(-1,0, 0), new Coordinate(-2,0,1));
-            game.newRoad(new Coordinate(-2,0, 1), new Coordinate(-1,-1,0));
-
-            GameLoop gameLoop = new GameLoop(game, frame.getGameScene());
-            gameLoop.start();
-            // start the first turn on a background thread so the EDT stays responsive
-            new Thread(() -> game.turn(), "Game-Initial-Turn").start();
+            Thread gameThread = new Thread(() -> {
+                // run the startup placement sequence
+                game.gameStartSequence();
+                // after the startup sequence finishes, start the first normal turn
+                // run on the same background thread so the EDT remains responsive
+                game.turn();
+            }, "Game-Thread");
+            gameThread.start();
 
         });
     }

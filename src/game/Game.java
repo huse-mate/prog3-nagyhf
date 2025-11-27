@@ -4,12 +4,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
-import IO.*;
 import game.buildings.Building;
 import game.buildings.City;
 import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
+import io.*;
 import render.Colors;
 
 public class Game {
@@ -20,6 +21,8 @@ public class Game {
     private int curIndex;
     private int maxRoadLength;
     private Player maxRoadOwner;
+
+    private Random random = new Random();
 
     public Game(){
         tileMap = new TileMap();
@@ -71,6 +74,29 @@ public class Game {
         return roads.getAllRoads();
     }
 
+    public void gameStartSequence(){
+        GameIO.gameStartSequenceBegin();
+        boolean reverse = false;
+        for(int round = 0; round < 2; round++){
+            for(int i = 0; i < players.size(); i++){
+                curPlayer = players.get( reverse ? players.size()-1 - i : i );
+                curPlayer.addSettlementForStart();
+                GameIO.refresh();
+                GameIO.waitForStarterSettlementPlacement();
+                curPlayer.addRoadForStart();
+                GameIO.waitForStarterRoadPlacement();
+                GameIO.refresh();
+            }
+            reverse = !reverse;
+        }
+
+        curIndex = random.nextInt(players.size());
+        curPlayer = players.get(curIndex);
+        
+        GameIO.gameStartSequenceEnd();
+        GameIO.refresh();
+    }
+
     public void turn(){
         // enable UI for dice
         GameIO.beginTurn();
@@ -115,7 +141,9 @@ public class Game {
         GameIO.waitForThiefMovementEnd();
 
         Set<Player> victims = getThiefVictims();
-        
+        if ( victims.isEmpty() ) {
+            return;
+        }
         victims.forEach( victim -> {
             Resource loot = victim.removeRandomResource();
             if (loot != null) curPlayer.addResource(loot, 1);
@@ -144,16 +172,54 @@ public class Game {
         return victims;
     }
 
+    public boolean canGive(Player p, Map<Resource, Integer> give){
+        for (Resource r : Resource.values()) {
+            int amountGive = give.getOrDefault(r, 0);
+            if (p.getResourceCount(r) < amountGive) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void attemptTrade(Player to, Map<Resource, Integer> give, Map<Resource, Integer> receive){
+        if (!canGive(curPlayer, give) || !canGive(to, receive)) 
+            return;
+
+        for (Resource r : Resource.values()) {
+            int amountGive = give.getOrDefault(r, 0);
+            int amountReceive = receive.getOrDefault(r, 0);
+            curPlayer.addResource(r, -amountGive);
+            to.addResource(r, amountGive);
+            curPlayer.addResource(r, amountReceive);
+            to.addResource(r, -amountReceive);
+        }
+    }
+
+    public void attemptTradeWithBank(Resource give, Resource receive){
+        int rate = 4; // default 4:1
+        if (curPlayer.getResourceCount(give) < rate) {
+            return;
+        }
+        curPlayer.addResource(give, -rate);
+        curPlayer.addResource(receive, 1);
+    }
+
+
     public void newBuilding(Building.Types type, Coordinate loc){
         curPlayer.addPoints(1);
         ArrayList<Tile> neighbours = new ArrayList<>(tileMap.getNeighbouringTiles(loc));
         Building newBuild;
         if(type == Building.Types.SETTLEMENT){
             newBuild = new Settlement(curPlayer, loc, neighbours);
-            curPlayer.addResource(Resource.WOOD, -1);
-            curPlayer.addResource(Resource.BRICK, -1);
-            curPlayer.addResource(Resource.WOOL, -1);
-            curPlayer.addResource(Resource.WHEAT, -1);
+            if (curPlayer.getSettlementInventory() > 0) {
+                curPlayer.removeSettlementInventory();
+            } else {
+                curPlayer.addResource(Resource.WOOD, -1);
+                curPlayer.addResource(Resource.BRICK, -1);
+                curPlayer.addResource(Resource.WOOL, -1);
+                curPlayer.addResource(Resource.WHEAT, -1);
+            }
         } else {
             newBuild = new City(curPlayer, loc, neighbours);
             curPlayer.addResource(Resource.WHEAT, -2);
@@ -164,12 +230,17 @@ public class Game {
         for (Tile tile : neighbours) {
             tile.addBuilding(newBuild);
         }
+        GameIO.refresh();
     }
 
     public void newRoad(Coordinate c1, Coordinate c2){
         roads.newRoad(curPlayer, c1, c2);
-        curPlayer.addResource(Resource.BRICK, -1);
-        curPlayer.addResource(Resource.WOOD, -1);
+        if (curPlayer.getRoadInventory() > 0) {
+            curPlayer.removeRoadInventory();
+        } else {
+            curPlayer.addResource(Resource.BRICK, -1);
+            curPlayer.addResource(Resource.WOOD, -1);
+        }
         int maxPlayerLength = roads.getLongestPath(curPlayer);
         curPlayer.setMaxRoadLength(maxPlayerLength);
         if(maxPlayerLength > maxRoadLength){
@@ -181,6 +252,7 @@ public class Game {
                 maxRoadOwner = curPlayer;
             }
         }
+        GameIO.refresh();
     }
 
 
@@ -197,7 +269,7 @@ public class Game {
         curPlayer = players.get(curIndex);
     }
 
-    public void debugGiveResources(Resource r, int n){
-        curPlayer.addResource(r, n);
+    public void debugGiveResources(int playerId, Resource r, int n){
+        players.get(playerId).addResource(r, n);
     }
 }

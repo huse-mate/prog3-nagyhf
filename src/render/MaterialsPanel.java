@@ -17,8 +17,8 @@ public class MaterialsPanel extends JPanel {
     public MaterialsPanel(){
         setPreferredSize(new Dimension(300, 60));
         setLayout(new GridLayout(1, 10));
-        setBackground(Colors.HIGHLIGHTED_PLAYERPANEL_COLOR.val);
-        setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, true));
+        setBackground(Colors.MATERIALS_PANEL_BACKGROUND_COLOR.val);
+        setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, false));
 
 
         for (Resource res : Resource.values()) {

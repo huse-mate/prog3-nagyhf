@@ -5,9 +5,9 @@ import game.*;
 import game.buildings.Building;
 import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
+import io.GameIO;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +20,7 @@ public class GamePanel extends JPanel {
 	private HashMap<Coordinate, BuildingButton> buildingButtonMap;
 	private HashMap<RoadNetwork.Road, RoadButton> roadButtonMap;
 	private HashMap<Tile, TileButton> tileButtonMap;
+	private boolean inStartSequence = false;
 
 	private static final int SCREEN_SIZE = 900;
 	private static final int NUMBER_SIZE = 70;
@@ -46,6 +47,17 @@ public class GamePanel extends JPanel {
 		createTileButtons(game.getTileMap());
     }
 
+	public void setInStartSequence(boolean inStartSequence) {
+		this.inStartSequence = inStartSequence;
+	}
+
+	public void resetBuildings() {
+		for (BuildingButton bb : buildingButtonMap.values()) {
+			bb.reset();
+			bb.repaint();
+		}
+	}
+
     @Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -56,13 +68,13 @@ public class GamePanel extends JPanel {
 		renderMap(g2, game.getTileMap());
 		g2.setTransform(old);
 
-		resetPossibleSettlements();
 		resetPossibleCities();
 		resetRoads();
 
 
+		resetBuildings();
 		renderBuildings();
-		renderPossibleSettlements(false);
+		renderPossibleSettlements(inStartSequence);
 		renderPossibleUpgrades();
 		renderRoads();
 		renderPossibleRoads();
@@ -88,12 +100,9 @@ public class GamePanel extends JPanel {
 			int drawTileX = (int) Math.round(px) + tileOffsetX;
 			int drawTileY = (int) Math.round(py) + tileOffsetY;
 
-			int drawNumberX = (int) Math.round(px) + numberOffset;
-			int drawNumberY = (int) Math.round(py) + numberOffset;
 
 			Tile t = entry.getValue();
 			g.drawImage(getTileTexture(t), drawTileX, drawTileY, tileSizeX, tileSizeY, this);
-			// g.drawImage(getNumberTexture(t), drawNumberX, drawNumberY, NUMBER_SIZE, NUMBER_SIZE, this);
 		}
 	}
 
@@ -106,6 +115,8 @@ public class GamePanel extends JPanel {
 
 			building.addActionListener(e -> {
 				if(building.isPlaceable()) {
+					if(inStartSequence) 
+						GameIO.notifyStarterPlacement();
 					game.newBuilding(Building.Types.SETTLEMENT, c);
 				} else if(building.isUpgradeable()) {
 					game.newBuilding(Building.Types.CITY, c);
@@ -128,6 +139,8 @@ public class GamePanel extends JPanel {
 
 			roadButton.addActionListener(e -> {
 				if(roadButton.isPossible()) {
+					if(inStartSequence) 
+						GameIO.notifyStarterPlacement();
 					game.newRoad(roadButton.getCoord1(), roadButton.getCoord2());
 				}
 			});
@@ -238,13 +251,6 @@ public class GamePanel extends JPanel {
 		});
 	}
 
-	private void resetPossibleSettlements(){
-		for (BuildingButton bb : buildingButtonMap.values()) {
-			if (bb.isPlaced()) continue;
-			bb.makeEmpty();
-			bb.repaint();
-		}
-	}
 
 	private void renderPossibleUpgrades(){
 		if(!game.getCurrentPlayer().canBuildCity()) return;

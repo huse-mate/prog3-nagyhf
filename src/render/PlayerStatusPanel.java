@@ -19,10 +19,8 @@ public class PlayerStatusPanel extends JPanel {
     public PlayerStatusPanel(Player p) {
         setLayout(new GridBagLayout());
         setPreferredSize(new Dimension(300, 80));
-        Border line = BorderFactory.createLineBorder(p.getColor().val, 2);
-        TitledBorder border = BorderFactory.createTitledBorder(line, "P" + (p.getId()+1));
-        border.setTitleColor(Colors.TITLE_COLOR.val);
-        setBorder(border);
+        Border line = BorderFactory.createLineBorder(p.getColor().val, 3);
+        setBorder(line);
         
         setBackground(Colors.PLAYERPANEL_COLOR.val);
         

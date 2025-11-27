@@ -8,10 +8,15 @@ public enum Colors {
     TITLE_COLOR(new Color(0x000000)),
     SUBTITLE_COLOR(new Color(0x000000)),
     BACKGROUND_COLOR(new Color(0xfef498)),
+
     MAP_BACKGROUND_COLOR(new Color(0x1167a6)),
     MAP_BORDER_COLOR(new Color(0x000000)),
+    
     PLAYERPANEL_COLOR(new Color(0xfef498)),
     HIGHLIGHTED_PLAYERPANEL_COLOR(new Color(0xfefdd2)),
+
+    MATERIALS_PANEL_BACKGROUND_COLOR(new Color(0xfefdd2)),
+    TRADE_PANEL_BACKGROUND_COLOR(new Color(0xfefdd2)),
 
     POSSIBLE_SETTLEMENT_COLOR(new Color(0xd3d3d3)),
     PRESSED_SETTLEMENT_COLOR(new Color(0xaaaaaa)),

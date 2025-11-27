@@ -166,12 +166,12 @@ public class RoadNetwork {
 
 
 
-    private List<Coordinate> getPlayerNodes(Player p){
-        List<Coordinate> playerNodes = new ArrayList<>();
+    private Set<Coordinate> getPlayerNodes(Player p){
+        Set<Coordinate> playerNodes = new HashSet<>();
         for (Road road : adjList) {
-            if(road.getOwner().equals(p)){  
+            if(road.getOwner().equals(p)){ 
                 playerNodes.add(road.getCoord1());
-                playerNodes.add(road.getCoord1());
+                playerNodes.add(road.getCoord2());
             }
         }
         return playerNodes;
@@ -230,7 +230,7 @@ public class RoadNetwork {
     }
 
     public int getLongestPath(Player p){
-        List<Coordinate> playerNodes = getPlayerNodes(p);
+        Set<Coordinate> playerNodes = getPlayerNodes(p);
         int maxRoadLength = 0;
         for (Coordinate node : playerNodes) {
             List<Road> playerRoads = getPlayerRoads(p);

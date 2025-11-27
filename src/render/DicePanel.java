@@ -19,8 +19,8 @@ public class DicePanel extends JPanel {
     private transient boolean hasNewThrow = false;
 
     public DicePanel(){
-        setPreferredSize(new Dimension(200,300));
         setOpaque(false);
+        setLayout(new GridBagLayout());
         throwButton = new JButton("0");
         throwButton.setPreferredSize(new Dimension(200,200));
         endTurnButton = new JButton("End Turn");
@@ -48,9 +48,13 @@ public class DicePanel extends JPanel {
             }
         });
 
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.insets = new Insets(5, 0, 5, 0);
+        add(throwButton, gbc);
 
-        add(throwButton);
-        add(endTurnButton);
+        gbc.gridx = 0; gbc.gridy = 1;
+        add(endTurnButton, gbc);
     }
 
     public void beginTurn() {

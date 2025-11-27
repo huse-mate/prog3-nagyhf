@@ -2,10 +2,8 @@ package game;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
-import IO.GameIO;
 import game.buildings.Building;
 import game.buildings.City;
 import game.buildings.Settlement;
@@ -22,6 +20,9 @@ public class Player {
     private ArrayList<Building> buildings;
     private Colors color;
     private Random rand;
+
+    private int settlementInventory = 0;
+    private int roadInventory = 0;
 
     public Player(int i, Colors c){
         rand = new Random();
@@ -50,6 +51,11 @@ public class Player {
     @Override
     public int hashCode() {
         return Integer.hashCode(id);
+    }
+
+    @Override
+    public String toString(){
+        return "Player " + (id+1);
     }
 
 
@@ -116,8 +122,31 @@ public class Player {
         return Resource.DESERT;
     }
 
+    public int getSettlementInventory(){
+        return settlementInventory;
+    }
+    public void removeSettlementInventory(){
+        if(settlementInventory > 0)
+            settlementInventory--;
+    }
+    public void removeRoadInventory(){
+        if(roadInventory > 0)
+            roadInventory--;
+    }
+    public int getRoadInventory(){
+        return roadInventory;
+    }
+
+    public void addSettlementForStart(){
+        settlementInventory++;
+    }
+
+    public void addRoadForStart(){
+        roadInventory++;
+    }
+
     public void thiefSteal(){
-        if(cardCount >= 7){
+        if(cardCount > 7){
             int toRemove = cardCount/2;
             for (int i = 0; i < toRemove; i++) {
                 removeRandomResource();
@@ -127,10 +156,11 @@ public class Player {
 
 
     public boolean canBuildSettlement(){
-        return  resources.get(Resource.BRICK)>=1 &&
+        return  (resources.get(Resource.BRICK)>=1 &&
                 resources.get(Resource.WOOD)>=1 && 
                 resources.get(Resource.WOOL)>=1 && 
-                resources.get(Resource.WHEAT)>=1;
+                resources.get(Resource.WHEAT)>=1) 
+                || settlementInventory > 0;
     }
 
     public boolean canBuildCity(){
@@ -147,8 +177,9 @@ public class Player {
     }
 
     public boolean canBuildRoad(){
-        return  resources.get(Resource.BRICK)>=1 &&
-                resources.get(Resource.WOOD)>=1;
+        return  (resources.get(Resource.BRICK)>=1 &&
+                resources.get(Resource.WOOD)>=1)
+                || roadInventory > 0;
     }
 
     public void addBuilding(Building buildingToAdd){
