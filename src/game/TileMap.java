@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class TileMap implements Iterable<Tile> {
     private HashMap<Coordinate, Tile> tiles = new HashMap<>();
@@ -41,6 +42,14 @@ public class TileMap implements Iterable<Tile> {
             }
         }
         tiles.put(new Coordinate(0, 0, -1), new Tile(7,Resource.DESERT));
+    }
+
+    /**
+     * Construct a TileMap from an explicit map of Coordinates -> Tiles.
+     * Used when restoring saved state.
+     */
+    public TileMap(Map<Coordinate, Tile> tilesMap) {
+        this.tiles = new HashMap<>(tilesMap);
     }
 
     public Tile get(Coordinate c){

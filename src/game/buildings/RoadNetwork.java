@@ -57,7 +57,16 @@ public class RoadNetwork {
 
         @Override
         public int hashCode() {
-            return java.util.Objects.hash(c1, c2);
+            return c1.hashCode() ^ c2.hashCode();
+        }
+
+        @Override
+        public String toString(){
+            return "Road{" +
+                "owner=" + owner +
+                ", c1=" + c1 +
+                ", c2=" + c2 +
+                '}';
         }
     }
 

@@ -4,8 +4,11 @@ import javax.swing.*;
 
 import game.*;
 import io.GameIO;
+import save.GameState;
+import save.SaveManager;
 
 import java.awt.*;
+import java.nio.file.Path;
 
 public class GameScene extends BackgroundPanel{
     
@@ -24,16 +27,10 @@ public class GameScene extends BackgroundPanel{
     public GameScene(MainFrame frame, Game game) {
         super();
         materialsPanel = new MaterialsPanel();
-        gamePanel = new GamePanel(frame, game);
+        gamePanel = new GamePanel(frame);
         dicePanel = new DicePanel();
         // wire end-turn button to notify the game's end-turn waiter
         this.game = game;
-        dicePanel.setEndTurnListener(() -> {
-            // notify the currently-running turn to finish
-            GameIO.notifyEndTurn();
-            // start the next player's turn off the EDT so we don't block UI
-            new Thread(() -> game.turn(), "Game-Turn-Thread").start();
-        });
         playersPanel = new PlayersPanel(frame, game);
         tradePanel = new TradePanel(game.getPlayers());
 
@@ -60,6 +57,59 @@ public class GameScene extends BackgroundPanel{
         repaint();
     }
 
+    public void saveGame(){
+        try {
+            SaveManager.save(Path.of("save/prev.json"), game);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void loadPreviousGame(){
+        try {
+            GameState loadedState = SaveManager.load(Path.of("save/prev.json"));
+            game = Game.fromState(loadedState);
+            GameIO.setGame(game);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        updateStatus();
+        startGameThread(false);
+    }
+
+    public void startNewGame() {
+        GameIO.setGame(game);
+        setGame(game);
+
+        game.getTileMap().get(new Coordinate(0, 0, -1)).addThief();
+        startGameThread(true);
+        
+    }
+
+    public void setGame(Game game){
+        gamePanel.setGame(game);
+        dicePanel.setEndTurnListener(() -> {
+            // notify the currently-running turn to finish
+            GameIO.notifyEndTurn();
+            // start the next player's turn off the EDT so we don't block UI
+            new Thread(game::turn, "Game-Turn-Thread").start();
+        });
+        dicePanel.setSaveListener(this::saveGame);
+    }
+
+    public void startGameThread(boolean newGame){
+        Thread gameThread = new Thread(() -> {
+            // run the startup placement sequence
+            if (newGame) {
+                game.gameStartSequence();
+            }
+            // after the startup sequence finishes, start the first normal turn
+            // run on the same background thread so the EDT remains responsive
+            game.turn();
+        }, "Game-Thread");
+        gameThread.start();
+    }
+
     public void gameStartSequenceBegin() {
         gamePanel.setInStartSequence(true);
     }
@@ -74,6 +124,7 @@ public class GameScene extends BackgroundPanel{
         setEndTurnEnabled(false);
         setDiceButtonEnabled(true);
         setTradingEnabled(false);
+        setSaveButtonEnabled(true);
     }
 
     public int waitForDiceThrow() {
@@ -127,6 +178,12 @@ public class GameScene extends BackgroundPanel{
         }
     }
 
+    public void setSaveButtonEnabled(boolean enabled) {
+        if (dicePanel != null) {
+            dicePanel.setSaveButtonEnabled(enabled);
+        }
+    }
+
     private JPanel setupRightSide(){
         JPanel diceContainer = new JPanel(new GridBagLayout());
         diceContainer.setOpaque(false);
@@ -144,6 +201,7 @@ public class GameScene extends BackgroundPanel{
         rightTop.gridy = 2;
         rightTop.weighty = 0.3;
         rightTop.fill = GridBagConstraints.VERTICAL;
+        
 
         GridBagConstraints rightBottom = new GridBagConstraints();
         rightBottom.gridx = 0;
@@ -206,9 +264,12 @@ public class GameScene extends BackgroundPanel{
         topRight.weightx = 0.1; // 10% right margin
         topRight.fill = GridBagConstraints.HORIZONTAL;
         
+        
         playersContainer.add(Box.createHorizontalStrut(0), topLeft);
         playersContainer.add(playersPanel, topMiddle);
         playersContainer.add(Box.createHorizontalStrut(0), topRight);
+
+        
         return playersContainer;
     }
 

@@ -23,6 +23,7 @@ public class Player {
 
     private int settlementInventory = 0;
     private int roadInventory = 0;
+    private int cityInventory = 0;
 
     public Player(int i, Colors c){
         rand = new Random();
@@ -35,6 +36,7 @@ public class Player {
         color = c;
         resources = new EnumMap<>(Resource.class);
         buildings = new ArrayList<>();
+        cityInventory = 0;
         for (Resource r : Resource.values()) {
             resources.put(r, 0);
         }
@@ -125,6 +127,13 @@ public class Player {
     public int getSettlementInventory(){
         return settlementInventory;
     }
+    public int getCityInventory(){
+        return cityInventory;
+    }
+    public void removeCityInventory(){
+        if(cityInventory > 0)
+            cityInventory--;
+    }
     public void removeSettlementInventory(){
         if(settlementInventory > 0)
             settlementInventory--;
@@ -139,6 +148,10 @@ public class Player {
 
     public void addSettlementForStart(){
         settlementInventory++;
+    }
+
+    public void addCityForStart(){
+        cityInventory++;
     }
 
     public void addRoadForStart(){
@@ -171,9 +184,9 @@ public class Player {
                 break;
             }
         }
-        return  resources.get(Resource.WHEAT)>=2 &&
+        return  (resources.get(Resource.WHEAT)>=2 &&
                 resources.get(Resource.ORE)>=3 &&
-                hasSettlement;
+                hasSettlement) || cityInventory > 0;
     }
 
     public boolean canBuildRoad(){

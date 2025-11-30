@@ -156,4 +156,12 @@ public class RoadButton extends JButton {
 
         g2.dispose();
     }
+
+    @Override
+    public String toString(){
+        return "RoadButton{" +
+            ", state=" + state +
+            ", owner=" + owner +
+            '}';
+    }
 }

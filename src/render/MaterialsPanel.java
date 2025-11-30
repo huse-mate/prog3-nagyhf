@@ -38,7 +38,7 @@ public class MaterialsPanel extends JPanel {
     }
 
     public JLabel getMaterialImage(Resource res){
-        Image img = new ImageIcon(new java.io.File("assets/" + res.name().toLowerCase() + "Icon.png").getAbsolutePath()).getImage();
+        Image img = new ImageIcon(new java.io.File("assets/icon" + res.name().substring(0, 1) + res.name().substring(1).toLowerCase() +".png").getAbsolutePath()).getImage();
         return new JLabel(new ImageIcon(img.getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
     }
 }

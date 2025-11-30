@@ -22,15 +22,15 @@ public class TileButton extends JButton {
         setVisible(true);
 
         addActionListener((event) -> {
-            tile.addThief();
+            if (tile.getThief())
+                return;
+            GameIO.addThief(tile);
             GameIO.thiefMovementEnd();
         });
     }
 
     @Override
     protected void paintComponent(Graphics g) {
-        if(tile.getNum() == 7 && !tile.getThief())
-            return;
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setFont(new Font("Arial", Font.BOLD, radius));
@@ -42,7 +42,7 @@ public class TileButton extends JButton {
         }
         g2.fillOval(0, 0, radius * 2, radius * 2);
 
-        if(isEnabled()) {
+        if(isEnabled() && !tile.getThief()) {
             g2.setColor(Color.RED);
         } else {
             g2.setColor(Color.BLACK);

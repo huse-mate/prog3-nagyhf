@@ -4,6 +4,7 @@ import javax.swing.*;
 import game.*;
 import game.buildings.Building;
 import game.buildings.RoadNetwork;
+import game.buildings.RoadNetwork.Road;
 import game.buildings.Settlement;
 import io.GameIO;
 
@@ -23,7 +24,6 @@ public class GamePanel extends JPanel {
 	private boolean inStartSequence = false;
 
 	private static final int SCREEN_SIZE = 900;
-	private static final int NUMBER_SIZE = 70;
 	private static final int TILE_SIZE = 200;
 	private static final int TILE_GAP = 2;
 	private static final int TILE_BUTTON_SIZE = 60;
@@ -32,20 +32,26 @@ public class GamePanel extends JPanel {
 	private static final int[] BUILDING_OFFSET_X = { 0, (int)(TILE_SIZE*0.43301)};
 	private static final int[] BUILDING_OFFSET_Y = { -TILE_SIZE/2, -TILE_SIZE/2+45}; // ezt lehetne rendes matekkal szamolni
 
-    public GamePanel(MainFrame frame, Game game) {
+    public GamePanel(MainFrame frame) {
 		this.frame = frame;
-		this.game = game;
-		buildingButtonMap = new HashMap<>();
-		roadButtonMap = new HashMap<>();
-		tileButtonMap = new HashMap<>();
-        setPreferredSize(new Dimension(SCREEN_SIZE, SCREEN_SIZE));
+		this.game = null;
+		
+    }
+
+	public void setGame(Game game) {
+		setPreferredSize(new Dimension(SCREEN_SIZE, SCREEN_SIZE));
 		setBackground(Colors.MAP_BACKGROUND_COLOR.val);
 		setBorder(BorderFactory.createLineBorder(Colors.MAP_BORDER_COLOR.val, 2));
 		setLayout(null);
+		
+		this.game = game;
+		buildingButtonMap = new HashMap<>();
 		createBuildingButtons();
+		roadButtonMap = new HashMap<>();
 		createRoadButtons();
+		tileButtonMap = new HashMap<>();
 		createTileButtons(game.getTileMap());
-    }
+	}
 
 	public void setInStartSequence(boolean inStartSequence) {
 		this.inStartSequence = inStartSequence;
@@ -54,30 +60,31 @@ public class GamePanel extends JPanel {
 	public void resetBuildings() {
 		for (BuildingButton bb : buildingButtonMap.values()) {
 			bb.reset();
-			bb.repaint();
 		}
 	}
 
     @Override
 	protected void paintComponent(Graphics g) {
 		super.paintComponent(g);
-		Graphics2D g2 = (Graphics2D) g;
-		java.awt.geom.AffineTransform old = g2.getTransform();
-		g2.translate(getWidth() / 2.0, getHeight() / 2.0);
-		g2.scale(1, -1);
-		renderMap(g2, game.getTileMap());
-		g2.setTransform(old);
+		if (game != null) {
+			Graphics2D g2 = (Graphics2D) g;
+			java.awt.geom.AffineTransform old = g2.getTransform();
+			g2.translate(getWidth() / 2.0, getHeight() / 2.0);
+			g2.scale(1, -1);
+			renderMap(g2, game.getTileMap());
+			g2.setTransform(old);
 
-		resetPossibleCities();
-		resetRoads();
+			resetPossibleCities();
+			resetRoads();
 
-
-		resetBuildings();
-		renderBuildings();
-		renderPossibleSettlements(inStartSequence);
-		renderPossibleUpgrades();
-		renderRoads();
-		renderPossibleRoads();
+			resetBuildings();
+			renderBuildings();
+			renderPossibleSettlements(inStartSequence);
+			renderPossibleUpgrades();
+			renderRoads();
+			renderPossibleRoads();
+		}
+		
 	}
 
     private void renderMap(Graphics2D g, TileMap map){
@@ -86,7 +93,6 @@ public class GamePanel extends JPanel {
 
 		final int tileOffsetX = -tileSizeX/2;
 		final int tileOffsetY = -tileSizeY/2;
-		final int numberOffset = -NUMBER_SIZE/2;
 		
 		final double tileGapX = (double) tileSizeX + (double) TILE_GAP;
 		final double tileGapY = (tileSizeY * 0.75) + TILE_GAP;
@@ -117,9 +123,9 @@ public class GamePanel extends JPanel {
 				if(building.isPlaceable()) {
 					if(inStartSequence) 
 						GameIO.notifyStarterPlacement();
-					game.newBuilding(Building.Types.SETTLEMENT, c);
+					game.newBuilding(game.getCurrentPlayer(), Building.Types.SETTLEMENT, c);
 				} else if(building.isUpgradeable()) {
-					game.newBuilding(Building.Types.CITY, c);
+					game.newBuilding(game.getCurrentPlayer(), Building.Types.CITY, c);
 				}
 			});
 
@@ -141,7 +147,7 @@ public class GamePanel extends JPanel {
 				if(roadButton.isPossible()) {
 					if(inStartSequence) 
 						GameIO.notifyStarterPlacement();
-					game.newRoad(roadButton.getCoord1(), roadButton.getCoord2());
+					game.newRoad(game.getCurrentPlayer(), roadButton.getCoord1(), roadButton.getCoord2());
 				}
 			});
 
@@ -170,7 +176,6 @@ public class GamePanel extends JPanel {
 		for (RoadButton rb : roadButtonMap.values()) {
 			rb.setEnabled(enabled);
 		}
-		repaint();
 	}
 
 	public void thiefMovementStart() {
@@ -180,7 +185,6 @@ public class GamePanel extends JPanel {
 		}
 		setBuildingEnabled(false);
 		frame.getGameScene().setEndTurnEnabled(false);
-		repaint();
 	}
 
 	public void thiefMovementEnd() {
@@ -188,7 +192,6 @@ public class GamePanel extends JPanel {
 			TileButton tb = entry.getValue();
 			tb.setEnabled(false);
 		}
-		repaint();
 	}
 
 	private Coordinate convertToScreenCoord(Coordinate coord){
@@ -237,9 +240,9 @@ public class GamePanel extends JPanel {
 				} else {
 					bb.setCity(p);
 				}
-				bb.repaint();
 			});
 		}
+		repaint();
 	}
 
 	private void renderPossibleSettlements(boolean start){
@@ -247,8 +250,8 @@ public class GamePanel extends JPanel {
 		game.getPossibleSettlements(start).forEach( c -> {
 			BuildingButton bb = buildingButtonMap.get(c);
 			bb.makePlaceable();
-			bb.repaint();
 		});
+		repaint();
 	}
 
 
@@ -261,6 +264,7 @@ public class GamePanel extends JPanel {
 				bb.makeUpgradeable();
 			}
 		});
+		repaint();
 	}
 
 	private void resetPossibleCities(){
@@ -268,21 +272,24 @@ public class GamePanel extends JPanel {
 			if (!bb.isUpgradeable()) continue;
 			bb.makeUnUpgradeable();
 		}
+		repaint();
 	}
 
 	private void renderRoads(){
-		game.getRoads().forEach( road -> {
+
+		for(RoadNetwork.Road road : game.getRoads()){
 			RoadButton rb = roadButtonMap.get(road);
+			if (rb == null) continue;
+			
 			rb.makePlaced(road.getOwner());
-			rb.repaint();
-		});
+		}
+		repaint();
 	}
 
 	private void resetRoads(){
 		for (RoadButton rb : roadButtonMap.values()) {
 			if (rb.isPlaced()) continue;
 			rb.makeEmpty();
-			rb.repaint();
 		}
 	}
 
@@ -291,8 +298,8 @@ public class GamePanel extends JPanel {
 		game.getPossibleRoads().forEach( road -> {
 			RoadButton rb = roadButtonMap.get(road);
 			rb.makePossible();
-			rb.repaint();
 		});
+		repaint();
 	}
 
 

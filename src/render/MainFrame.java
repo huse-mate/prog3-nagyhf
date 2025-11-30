@@ -60,6 +60,16 @@ public class MainFrame extends JFrame {
         return (GameScene) scenes.get(Scene.GAME);
     }
 
+    public void loadGameScene(){
+        getGameScene().loadPreviousGame();
+        showScene(Scene.GAME);
+    }
+
+    public void newGameScene(){
+        getGameScene().startNewGame();
+        showScene(Scene.GAME);
+    }
+
     public void showScene(Scene scene) {
         cardLayout.show(mainPanel, scene.name);
     }

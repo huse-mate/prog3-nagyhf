@@ -10,7 +10,7 @@ public class DicePanel extends JPanel {
 
     private JButton throwButton;
     private JButton endTurnButton;
-    private Runnable endTurnListener;
+    private JButton saveButton;
 
     private boolean canThrowDice;
     private int value = 0;
@@ -40,20 +40,22 @@ public class DicePanel extends JPanel {
             repaint();
         });
 
-        endTurnButton.addActionListener(e -> {
-            // disable the end-turn button immediately to prevent double-press
-            endTurnButton.setEnabled(false);
-            if (endTurnListener != null) {
-                endTurnListener.run();
-            }
-        });
+
+        
+
+        saveButton = new JButton("Save Game");
+        saveButton.setPreferredSize(new Dimension(200,50));
+        GridBagConstraints saveGbc = new GridBagConstraints();
+        saveGbc.gridx = 0;
+        saveGbc.gridy = 0;
+        add(saveButton, saveGbc);
 
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridx = 0; gbc.gridy = 1;
         gbc.insets = new Insets(5, 0, 5, 0);
         add(throwButton, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0; gbc.gridy = 2;
         add(endTurnButton, gbc);
     }
 
@@ -80,11 +82,19 @@ public class DicePanel extends JPanel {
         throwButton.setEnabled(enabled);
     }
 
+    public void setSaveButtonEnabled(boolean enabled) {
+        saveButton.setEnabled(enabled);
+    }
+
     /**
      * Register a callback that runs when the End Turn button is pressed.
      */
     public void setEndTurnListener(Runnable listener) {
-        this.endTurnListener = listener;
+        endTurnButton.addActionListener(e -> listener.run());
+    }
+
+    public void setSaveListener(Runnable saveListener) {
+        saveButton.addActionListener(e -> saveListener.run());
     }
 
     @Override

@@ -1,7 +1,5 @@
 package game;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import game.buildings.Building;
 import game.buildings.Settlement;
@@ -16,11 +14,7 @@ public class Tile {
         num = n;
         resource = r;
         buildings = new ArrayList<>();
-        if(r == Resource.DESERT){
-            thief = true;
-        } else {
-            thief = false;
-        }
+        thief = false;
     }
 
     public int getNum() {

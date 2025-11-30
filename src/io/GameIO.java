@@ -14,14 +14,18 @@ public class GameIO {
 
     private GameIO() { /* prevent instantiation */ }
 
-    public static void setGameScene(Game game, GameScene gs){
+    public static void setGameScene(GameScene gs){
         GameIO.gameScene = gs;
-        GameIO.game = game;
+    }
+
+    public static void setGame(Game g){
+        GameIO.game = g;
     }
 
     public static void gameStartSequenceBegin() {
         if (gameScene != null) {
             gameScene.gameStartSequenceBegin();
+            gameScene.setSaveButtonEnabled(false);
             gameScene.setTradingEnabled(false);
             gameScene.setEndTurnEnabled(false);
             gameScene.setDiceButtonEnabled(false);
@@ -32,6 +36,7 @@ public class GameIO {
     public static void gameStartSequenceEnd() {
         if (gameScene != null) {
             gameScene.gameStartSequenceEnd();
+            gameScene.setSaveButtonEnabled(true);
             gameScene.setTradingEnabled(false);
             gameScene.setEndTurnEnabled(false);
             gameScene.setDiceButtonEnabled(true);
@@ -71,8 +76,9 @@ public class GameIO {
             // ensure UI changes happen on the Event Dispatch Thread
             SwingUtilities.invokeLater(() -> {
                 gameScene.beginTurn();
+                refresh();
             });
-            refresh();
+            
         }
         
     }
@@ -114,20 +120,33 @@ public class GameIO {
         gameScene.setEndTurnEnabled(true);
         gameScene.setDiceButtonEnabled(false);
         gameScene.setTradingEnabled(true);
+        gameScene.setSaveButtonEnabled(false);
         refresh();
     }
 
     private static final Object thiefMovementLock = new Object();
 
+    public static void addThief(game.Tile tile){
+        for (game.Tile t : game.getTileMap()) {
+            if(t.getThief()){
+                t.removeThief();
+                break;
+            }
+        }
+        tile.addThief();
+    }
+
     public static void thiefMovementStart(){
         if (gameScene != null) {
             gameScene.thiefMovementStart();
+            gameScene.setSaveButtonEnabled(false);
         }
     }
 
     public static void thiefMovementEnd(){
         if (gameScene != null) {
             gameScene.thiefMovementEnd();
+            gameScene.setSaveButtonEnabled(true);
             synchronized (thiefMovementLock) {
                 thiefMovementLock.notifyAll();
             }
@@ -151,13 +170,17 @@ public class GameIO {
 
     public static void attemptTradeWithBank(Resource give, Resource receive){
         game.attemptTradeWithBank(give, receive);
-        gameScene.updateStatus();
+        refresh();
     }
 
     public static void refresh() {
         if (gameScene != null) {
             gameScene.updateStatus();
         }
+    }
+
+    public static GameScene getGameScene() {
+        return gameScene;
     }
 
 }

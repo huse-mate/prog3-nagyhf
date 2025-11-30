@@ -1,5 +1,6 @@
 package game;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.List;
@@ -12,6 +13,7 @@ import game.buildings.RoadNetwork;
 import game.buildings.Settlement;
 import io.*;
 import render.Colors;
+import save.GameState;
 
 public class Game {
     private TileMap tileMap;
@@ -44,6 +46,81 @@ public class Game {
 
         maxRoadLength = 0;
         maxRoadOwner = null;
+    }
+
+    /**
+     * Construct a new Game instance from a previously saved GameState DTO.
+     * This replaces tiles, players, buildings and roads to match the saved state.
+     */
+    public static Game fromState(GameState s) {
+        Game g = new Game();
+
+        // Rebuild tiles
+        Map<Coordinate, Tile> tileMap = new HashMap<>();
+        for (GameState.TileDTO td : s.tiles) {
+            Coordinate c = new Coordinate(td.x, td.y, td.corner);
+            Resource res = Resource.valueOf(td.resource);
+            Tile t = new Tile(td.number, res);
+            if (td.thief) t.addThief();
+            tileMap.put(c, t);
+        }
+        g.tileMap = new TileMap(tileMap);
+
+        // Rebuild players
+        ArrayList<Player> newPlayers = new ArrayList<>();
+        for (GameState.PlayerDTO pd : s.players) {
+            Colors col = Colors.valueOf(pd.color);
+            Player p = new Player(pd.id, col);
+            if (pd.points > 0) p.addPoints(pd.points);
+            for (Map.Entry<String, Integer> en : pd.resources.entrySet()) {
+                Resource r = Resource.valueOf(en.getKey());
+                int count = en.getValue();
+                if (count > 0) p.addResource(r, count);
+            }
+            for (int i = 0; i < pd.settlementInventory; i++) p.addSettlementForStart();
+            for (int i = 0; i < pd.roadInventory; i++) p.addRoadForStart();
+            newPlayers.add(p);
+        }
+        g.players = newPlayers;
+
+        // Rebuild roads/buildings
+        g.roads = new RoadNetwork();
+        // buildings
+        for (GameState.BuildingDTO bd : s.buildings) {
+            Player owner = g.players.stream().filter(pp -> pp.getId() == bd.ownerId).findFirst().orElse(null);
+            if (owner == null) continue;
+            Coordinate coord = new Coordinate(bd.x, bd.y, bd.corner);
+            if ("SETTLEMENT".equals(bd.type)) {
+                owner.addSettlementForStart();
+                g.newBuilding(owner, Building.Types.SETTLEMENT, coord);
+                owner.addPoints(-1);
+            } else if ("CITY".equals(bd.type)) {
+                owner.addCityForStart();
+                g.newBuilding(owner, Building.Types.CITY, coord);
+                owner.addPoints(-2);
+            }
+        }
+
+        GameIO.setGame(g);
+        GameIO.getGameScene().setGame(g);
+
+        // roads
+        for (GameState.RoadDTO rd : s.roads) {
+            Player owner = g.players.stream().filter(pp -> pp.getId() == rd.ownerId).findFirst().orElse(null);
+            if (owner == null || rd.ownerId == -1) continue;
+            Coordinate c1 = new Coordinate(rd.x1, rd.y1, rd.c1);
+            Coordinate c2 = new Coordinate(rd.x2, rd.y2, rd.c2);
+            owner.addRoadForStart();
+            g.newRoad(owner, c1, c2);
+        }
+
+        // set current player
+        g.curIndex = s.currentPlayerIndex;
+        g.curPlayer = g.players.get(g.curIndex);
+
+        
+
+        return g;
     }
 
     public final TileMap getTileMap(){
@@ -112,6 +189,7 @@ public class Game {
 
         // advance to next player
         nextPlayer();
+        GameIO.refresh();
     }
 
     public void diceThrow(){
@@ -131,12 +209,6 @@ public class Game {
     }
 
     public void thiefMovement(Player curPlayer){
-        for (Tile t : tileMap) {
-            if(t.getThief()){
-                t.removeThief();
-                break;
-            }
-        }
         GameIO.thiefMovementStart();
         GameIO.waitForThiefMovementEnd();
 
@@ -144,10 +216,10 @@ public class Game {
         if ( victims.isEmpty() ) {
             return;
         }
-        victims.forEach( victim -> {
-            Resource loot = victim.removeRandomResource();
-            if (loot != null) curPlayer.addResource(loot, 1);
-        });
+        int victimIndex = random.nextInt(victims.size());
+        Player victim = (Player) victims.toArray()[victimIndex];
+        Resource loot = victim.removeRandomResource();
+        if (loot != null) curPlayer.addResource(loot, 1);
     }
 
     public Set<Player> getThiefVictims(){
@@ -162,7 +234,7 @@ public class Game {
                             break;
                         }
                     }
-                    if (adjacentToThief) {
+                    if (adjacentToThief && p.getCardCount() > 0) {
                         victims.add(p);
                         break;
                     }
@@ -206,50 +278,54 @@ public class Game {
     }
 
 
-    public void newBuilding(Building.Types type, Coordinate loc){
-        curPlayer.addPoints(1);
+    public void newBuilding(Player p, Building.Types type, Coordinate loc){
+        p.addPoints(1);
         ArrayList<Tile> neighbours = new ArrayList<>(tileMap.getNeighbouringTiles(loc));
         Building newBuild;
         if(type == Building.Types.SETTLEMENT){
-            newBuild = new Settlement(curPlayer, loc, neighbours);
-            if (curPlayer.getSettlementInventory() > 0) {
-                curPlayer.removeSettlementInventory();
+            newBuild = new Settlement(p, loc, neighbours);
+            if (p.getSettlementInventory() > 0) {
+                p.removeSettlementInventory();
             } else {
-                curPlayer.addResource(Resource.WOOD, -1);
-                curPlayer.addResource(Resource.BRICK, -1);
-                curPlayer.addResource(Resource.WOOL, -1);
-                curPlayer.addResource(Resource.WHEAT, -1);
+                p.addResource(Resource.WOOD, -1);
+                p.addResource(Resource.BRICK, -1);
+                p.addResource(Resource.WOOL, -1);
+                p.addResource(Resource.WHEAT, -1);
             }
         } else {
-            newBuild = new City(curPlayer, loc, neighbours);
-            curPlayer.addResource(Resource.WHEAT, -2);
-            curPlayer.addResource(Resource.ORE, -3);
+            newBuild = new City(p, loc, neighbours);
+            if (p.getCityInventory() > 0) {
+                p.removeCityInventory();
+            } else {
+                p.addResource(Resource.WHEAT, -2);
+                p.addResource(Resource.ORE, -3);
+            }
         }
-        curPlayer.addBuilding(newBuild);
-        roads.newBuilding(loc, curPlayer);
+        p.addBuilding(newBuild);
+        roads.newBuilding(loc, p);
         for (Tile tile : neighbours) {
             tile.addBuilding(newBuild);
         }
         GameIO.refresh();
     }
 
-    public void newRoad(Coordinate c1, Coordinate c2){
-        roads.newRoad(curPlayer, c1, c2);
-        if (curPlayer.getRoadInventory() > 0) {
-            curPlayer.removeRoadInventory();
+    public void newRoad(Player p, Coordinate c1, Coordinate c2){
+        roads.newRoad(p, c1, c2);
+        if (p.getRoadInventory() > 0) {
+            p.removeRoadInventory();
         } else {
-            curPlayer.addResource(Resource.BRICK, -1);
-            curPlayer.addResource(Resource.WOOD, -1);
+            p.addResource(Resource.BRICK, -1);
+            p.addResource(Resource.WOOD, -1);
         }
-        int maxPlayerLength = roads.getLongestPath(curPlayer);
-        curPlayer.setMaxRoadLength(maxPlayerLength);
+        int maxPlayerLength = roads.getLongestPath(p);
+        p.setMaxRoadLength(maxPlayerLength);
         if(maxPlayerLength > maxRoadLength){
             maxRoadLength = maxPlayerLength;
-            if(maxRoadOwner != curPlayer && maxRoadLength >= 5){
+            if(maxRoadOwner != p && maxRoadLength >= 5){
                 if(maxRoadOwner != null)
                     maxRoadOwner.addPoints(-2);
-                curPlayer.addPoints(2);
-                maxRoadOwner = curPlayer;
+                p.addPoints(2);
+                maxRoadOwner = p;
             }
         }
         GameIO.refresh();

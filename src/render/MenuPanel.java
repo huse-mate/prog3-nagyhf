@@ -9,7 +9,8 @@ public class MenuPanel extends JPanel {
     private static final String FONT_NAME = "NerdFont";
     private static final int FONT_STYLE = Font.BOLD;
 
-    private final JButton playButton = new JButton("Play");
+    private final JButton newGameButton = new JButton("Start New Game");
+    private final JButton loadGameButton = new JButton("Load Previous Game");
     private final JButton exitButton = new JButton("Exit");
     private final Dimension btnSize = new Dimension(410, 60);
 
@@ -35,7 +36,7 @@ public class MenuPanel extends JPanel {
 
         box.add(Box.createVerticalStrut(400));
 
-        for (JButton b : new JButton[]{playButton, exitButton}) {
+        for (JButton b : new JButton[]{newGameButton, loadGameButton, exitButton}) {
             setupButton(box, b);
         }
         setupButtonActions(frame);
@@ -81,8 +82,11 @@ public class MenuPanel extends JPanel {
 }
 
     private void setupButtonActions(MainFrame frame) {
-        playButton.addActionListener(e -> 
-            frame.showScene(Scene.GAME)
+        newGameButton.addActionListener(e -> 
+            frame.newGameScene()
+        );
+        loadGameButton.addActionListener(e -> 
+            frame.loadGameScene()
         );
         exitButton.addActionListener(e -> {
             frame.dispose();
