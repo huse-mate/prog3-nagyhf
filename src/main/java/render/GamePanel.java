@@ -1,12 +1,9 @@
 package render;
 import javax.swing.*;
 
-import game.*;
-import game.buildings.Building;
-import game.buildings.RoadNetwork;
-import game.buildings.RoadNetwork.Road;
-import game.buildings.Settlement;
 import io.GameIO;
+import game.*;
+import game.buildings.*;
 
 import java.awt.*;
 import java.util.HashMap;

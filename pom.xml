@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>hu.huse</groupId>
     <artifactId>prog3-nagyhf</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>prog3-nagyhf</name>
 
     <properties>
@@ -21,10 +21,17 @@
             <artifactId>gson</artifactId>
             <version>2.10.1</version>
         </dependency>
+
+        <!-- JUnit Jupiter for testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.10.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
-        <sourceDirectory>${project.basedir}/src</sourceDirectory>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -35,13 +42,32 @@
                 </configuration>
             </plugin>
 
-            <!-- exec plugin to run the main class -->
+            <!-- Surefire plugin for running tests (JUnit 5 support) -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <!-- optional: show test summary, configure parallelism, etc. -->
+                </configuration>
+            </plugin>
+
+            <!-- exec plugin if you need to keep running main -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
+                <!-- Add JUnit Jupiter as a test dependency (if you want it as a project dependency, add this under the top-level <dependencies> instead) -->
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter</artifactId>
+                        <version>5.10.0</version>
+                        <scope>compile</scope>
+                    </dependency>
+                </dependencies>
                 <configuration>
-                    <mainClass>main.Main</mainClass>
+                    <mainClass>Main</mainClass>
                 </configuration>
             </plugin>
         </plugins>

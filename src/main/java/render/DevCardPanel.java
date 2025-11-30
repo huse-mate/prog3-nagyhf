@@ -3,8 +3,8 @@ package render;
 import java.awt.*;
 import javax.swing.*;
 
-import game.Player;
 import io.GameIO;
+import game.Player;
 
 public class DevCardPanel extends JPanel {
     private static final int CARD_HEIGHT = 60;
@@ -26,7 +26,7 @@ public class DevCardPanel extends JPanel {
     
 
     public DevCardPanel() {
-        setPreferredSize(new Dimension(300, 100));
+        setPreferredSize(new Dimension(300, 130));
         setBackground(Colors.MATERIALS_PANEL_BACKGROUND_COLOR.val);
         setBorder(BorderFactory.createLineBorder(Color.BLACK, 2, false));
         setStyles();
@@ -51,26 +51,31 @@ public class DevCardPanel extends JPanel {
 
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5, 5, 5, 5);
+        gbc.insets = new Insets(5, 15, 5, 15);
         gbc.anchor = GridBagConstraints.CENTER;
-        gbc.gridx = 0; gbc.gridy = 0;
 
+        gbc.gridx = 0; gbc.gridy = 0;
+        gbc.gridwidth = 4;
+        add(new JLabel("Development Cards"), gbc);
+        gbc.gridwidth = 1;
+
+        gbc.gridx = 0; gbc.gridy = 1;
         add(buyButton, gbc);
-        gbc.gridx = 1; gbc.gridy = 0;
+        gbc.gridx = 1; gbc.gridy = 1;
         add(knightCardButton, gbc);
-        gbc.gridx = 2; gbc.gridy = 0;
+        gbc.gridx = 2; gbc.gridy = 1;
         add(roadBuildingCardButton, gbc);
-        gbc.gridx = 3; gbc.gridy = 0;
+        gbc.gridx = 3; gbc.gridy = 1;
         add(victoryPointCardButton, gbc);
         
 
-        gbc.gridx = 0; gbc.gridy = 1;
+        gbc.gridx = 0; gbc.gridy = 2;
         add(Box.createGlue(), gbc);
-        gbc.gridx = 1; gbc.gridy = 1;
+        gbc.gridx = 1; gbc.gridy = 2;
         add(knightCardLabel, gbc);
-        gbc.gridx = 2; gbc.gridy = 1;
+        gbc.gridx = 2; gbc.gridy = 2;
         add(roadBuildingCardLabel, gbc);
-        gbc.gridx = 3; gbc.gridy = 1;
+        gbc.gridx = 3; gbc.gridy = 2;
         add(victoryPointCardLabel, gbc);
     }
 

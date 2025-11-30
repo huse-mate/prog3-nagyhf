@@ -1,10 +1,11 @@
 package render;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
 
 import game.*;
+
+import java.awt.*;
+import java.util.HashMap;
 
 
 public class PlayersPanel extends JPanel {

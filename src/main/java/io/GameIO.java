@@ -1,12 +1,9 @@
 package io;
 
+import game.*;
 import render.GameScene;
-import game.Player;
-import game.Resource;
-
 import java.util.Map;
-import javax.swing.SwingUtilities;
-import game.Game;
+import javax.swing.*;
 
 public class GameIO {
     private static GameScene gameScene;
@@ -139,8 +136,8 @@ public class GameIO {
 
     
 
-    public static void addThief(game.Tile tile){
-        for (game.Tile t : game.getTileMap()) {
+    public static void addThief(Tile tile){
+        for (Tile t : game.getTileMap()) {
             if(t.getThief()){
                 t.removeThief();
                 break;

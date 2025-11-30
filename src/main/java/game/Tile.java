@@ -1,8 +1,7 @@
 package game;
 import java.util.ArrayList;
 
-import game.buildings.Building;
-import game.buildings.Settlement;
+import game.buildings.*;
 
 public class Tile {
     private int num;

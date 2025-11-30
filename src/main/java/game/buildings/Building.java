@@ -3,10 +3,7 @@ package game.buildings;
 import java.util.ArrayList;
 import java.util.List;
 
-import game.Coordinate;
-import game.Player;
-import game.Resource;
-import game.Tile;
+import game.*;
 
 public abstract class Building {
     public enum Types {

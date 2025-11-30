@@ -1,9 +1,10 @@
 package render;
 import javax.swing.*;
-import java.awt.*;
-import java.util.HashMap;
 
 import game.*;
+
+import java.awt.*;
+import java.util.HashMap;
 
 public class MainFrame extends JFrame {
     private CardLayout cardLayout;

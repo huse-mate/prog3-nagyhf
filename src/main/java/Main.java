@@ -1,8 +1,8 @@
-package main;
 
-import render.MainFrame;
+
 import game.*;
 import io.GameIO;
+import render.MainFrame;
 
 public class Main {
     public static void main(String[] args){

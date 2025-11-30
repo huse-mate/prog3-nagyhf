@@ -1,4 +1,5 @@
 package game;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -6,14 +7,11 @@ import java.util.Set;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import save.GameState;
 
-import game.buildings.Building;
-import game.buildings.City;
-import game.buildings.RoadNetwork;
-import game.buildings.Settlement;
 import io.*;
 import render.Colors;
-import save.GameState;
+import game.buildings.*;
 
 public class Game {
     private TileMap tileMap;
@@ -405,7 +403,6 @@ public class Game {
         p.removePointCard();
         p.addPoints(1);
     }
-
 
     public Set<Coordinate> getPossibleSettlements(boolean start){
         return roads.getPossibleSettlements(curPlayer, start);

@@ -1,8 +1,9 @@
 package save;
 
+import java.util.*;
+
 import game.*;
 import game.buildings.*;
-import java.util.*;
 
 /**
  * Data Transfer Objects representing serializable game state.

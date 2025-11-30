@@ -2,8 +2,8 @@ package render;
 
 import javax.swing.*;
 
-import game.Resource;
 import io.GameIO;
+import game.Resource;
 
 import java.awt.*;
 import java.util.ArrayList;

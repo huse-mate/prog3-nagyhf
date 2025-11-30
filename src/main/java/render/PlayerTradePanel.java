@@ -4,11 +4,11 @@ import javax.swing.*;
 
 import game.Resource;
 import io.GameIO;
+import game.Player;
 
 import java.awt.*;
 import java.util.Map;
 import java.util.List;
-import game.Player;
 
 
 public class PlayerTradePanel extends JPanel {

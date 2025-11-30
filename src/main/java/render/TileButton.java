@@ -1,8 +1,8 @@
 package render;
 import javax.swing.*;
 
-import game.Tile;
 import io.GameIO;
+import game.*;
 
 import java.awt.*;
 

@@ -3,8 +3,10 @@ package render;
 import java.awt.*;
 
 import javax.swing.*;
-import java.util.List;
+
 import game.Player;
+
+import java.util.List;
 
 public class TradePanel extends JPanel {
 

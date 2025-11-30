@@ -2,11 +2,10 @@ package render;
 
 import javax.swing.*;
 
-import game.*;
 import io.GameIO;
+import game.*;
+import save.*;
 import render.MainFrame.Scene;
-import save.GameState;
-import save.SaveManager;
 
 import java.awt.*;
 import java.nio.file.Path;

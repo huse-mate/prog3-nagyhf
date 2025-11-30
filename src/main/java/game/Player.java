@@ -4,9 +4,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Random;
 
-import game.buildings.Building;
-import game.buildings.City;
-import game.buildings.Settlement;
+import game.buildings.*;
 import render.Colors;
 
 public class Player {
