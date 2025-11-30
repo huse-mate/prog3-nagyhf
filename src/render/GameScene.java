@@ -54,6 +54,8 @@ public class GameScene extends BackgroundPanel{
         });
         playersPanel.highlightCurrentPlayer(game.getCurrentPlayer());
         materialsPanel.updateStatus(game.getCurrentPlayer());
+        tradePanel.updateStatus(game.getCurrentPlayer());
+        gamePanel.repaint();
         repaint();
     }
 
@@ -119,7 +121,6 @@ public class GameScene extends BackgroundPanel{
     }
 
     public void beginTurn() {
-        // disable building and endTurn while waiting for dice
         setBuildingEnabled(false);
         setEndTurnEnabled(false);
         setDiceButtonEnabled(true);
@@ -129,8 +130,7 @@ public class GameScene extends BackgroundPanel{
 
     public int waitForDiceThrow() {
         try {
-            int val = dicePanel.takeThrow();
-            return val;
+            return dicePanel.takeThrow();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             return 0;

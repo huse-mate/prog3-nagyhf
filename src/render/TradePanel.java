@@ -10,6 +10,7 @@ public class TradePanel extends JPanel {
 
     private BankTradePanel bankTradePanel;
     private PlayerTradePanel playerTradePanel;
+    private DevCardPanel devCardPanel;
 
     public TradePanel(List<Player> players) {
         setLayout(new GridBagLayout());
@@ -17,6 +18,7 @@ public class TradePanel extends JPanel {
 
         bankTradePanel = new BankTradePanel();
         playerTradePanel = new PlayerTradePanel(players);
+        devCardPanel = new DevCardPanel();
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0; gbc.gridy = 0;
@@ -27,6 +29,8 @@ public class TradePanel extends JPanel {
         add(bankTradePanel, gbc);
         gbc.gridy = 1;
         add(playerTradePanel, gbc);
+        gbc.gridy = 2;
+        add(devCardPanel, gbc);
     }
 
 
@@ -34,6 +38,11 @@ public class TradePanel extends JPanel {
     public void setEnabled(boolean enabled) {
         bankTradePanel.setEnabled(enabled);
         playerTradePanel.setEnabled(enabled);
+        devCardPanel.setEnabled(enabled);
+    }
+
+    public void updateStatus(Player currentPlayer) {
+        devCardPanel.updateStatus(currentPlayer);
     }
 
 }

@@ -30,7 +30,7 @@ public class PlayersPanel extends JPanel {
 
 
     public void updateStatus(Player p){
-        playerStatus.get(p).updateStatus(p.getScore(), p.getCardCount(), p.getDevCardCount(), p.getMaxRoadLength(), p.getKnightCount());
+        playerStatus.get(p).updateStatus(p.getScore(), p.getCardCount(), p.getDevCardCount(), p.getMaxRoadLength(), p.getKnightsPlayed());
     }
 
     public void highlightCurrentPlayer(Player p){

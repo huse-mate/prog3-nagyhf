@@ -12,6 +12,10 @@ public class GameIO {
     private static GameScene gameScene;
     private static Game game;
 
+    private static final Object starterPlacementLock = new Object();
+    private static final Object endTurnLock = new Object();
+    private static final java.util.concurrent.atomic.AtomicReference<java.util.concurrent.CountDownLatch> thiefMovementLatch = new java.util.concurrent.atomic.AtomicReference<>();
+
     private GameIO() { /* prevent instantiation */ }
 
     public static void setGameScene(GameScene gs){
@@ -20,6 +24,13 @@ public class GameIO {
 
     public static void setGame(Game g){
         GameIO.game = g;
+    }
+
+    public static Player getCurrentPlayer(){
+        if (game != null) {
+            return game.getCurrentPlayer();
+        }
+        return null;
     }
 
     public static void gameStartSequenceBegin() {
@@ -44,7 +55,7 @@ public class GameIO {
         }
     }
 
-    private static final Object starterPlacementLock = new Object();
+    
     public static void waitForStarterSettlementPlacement(){
         synchronized (starterPlacementLock) {
             try {
@@ -73,7 +84,6 @@ public class GameIO {
 
     public static void beginTurn() {
         if (gameScene != null) {
-            // ensure UI changes happen on the Event Dispatch Thread
             SwingUtilities.invokeLater(() -> {
                 gameScene.beginTurn();
                 refresh();
@@ -83,7 +93,6 @@ public class GameIO {
         
     }
 
-    private static final Object endTurnLock = new Object();
 
     /**
      * Blocks until the UI notifies that the player ended their turn.
@@ -124,7 +133,7 @@ public class GameIO {
         refresh();
     }
 
-    private static final Object thiefMovementLock = new Object();
+    
 
     public static void addThief(game.Tile tile){
         for (game.Tile t : game.getTileMap()) {
@@ -137,29 +146,51 @@ public class GameIO {
     }
 
     public static void thiefMovementStart(){
-        if (gameScene != null) {
-            gameScene.thiefMovementStart();
-            gameScene.setSaveButtonEnabled(false);
-        }
+        gameScene.thiefMovementStart();
+        gameScene.setEndTurnEnabled(false);
+        gameScene.setDiceButtonEnabled(false);
+        gameScene.setBuildingEnabled(false);
+        gameScene.setTradingEnabled(false);
+        gameScene.setSaveButtonEnabled(false);
+        refresh();
     }
 
     public static void thiefMovementEnd(){
-        if (gameScene != null) {
+        SwingUtilities.invokeLater(() -> {
             gameScene.thiefMovementEnd();
+            gameScene.setEndTurnEnabled(true);
+            gameScene.setDiceButtonEnabled(false);
+            gameScene.setBuildingEnabled(true);
+            gameScene.setTradingEnabled(true);
             gameScene.setSaveButtonEnabled(true);
-            synchronized (thiefMovementLock) {
-                thiefMovementLock.notifyAll();
+            refresh();
+            java.util.concurrent.CountDownLatch latch = thiefMovementLatch.getAndSet(null);
+            if (latch != null) {
+                latch.countDown();
             }
-        }
+        });
     }
 
+    /**
+     * Begin a thief movement phase and create a latch that waiters can await.
+     * This sets up the synchronization and triggers the UI to enter thief-move mode.
+     */
+    public static void beginThiefMovement() {
+        java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
+        thiefMovementLatch.set(latch);
+        thiefMovementStart();
+    }
+
+    /**
+     * Wait until the thief movement phase finishes (signalled by UI).
+     */
     public static void waitForThiefMovementEnd(){
-        synchronized (thiefMovementLock) {
-            try {
-                thiefMovementLock.wait();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+        java.util.concurrent.CountDownLatch latch = thiefMovementLatch.get();
+        if (latch == null) return; // nothing to wait for
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -170,6 +201,28 @@ public class GameIO {
 
     public static void attemptTradeWithBank(Resource give, Resource receive){
         game.attemptTradeWithBank(give, receive);
+        refresh();
+    }
+
+    public static void buyDevCard() {
+        game.buyDevCard(game.getCurrentPlayer());
+        refresh();
+    }
+
+    public static void useDevCard(String card) {
+        switch (card) {
+            case "KNIGHT":
+                game.useKnightCard(game.getCurrentPlayer());
+                break;
+            case "ROAD":
+                game.useRoadBuildingCard(game.getCurrentPlayer());
+                break;
+            case "POINT":
+                game.useVictoryPointCard(game.getCurrentPlayer());
+                break;
+            default:
+                break;
+        }
         refresh();
     }
 

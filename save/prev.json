@@ -1,19 +1,19 @@
 {
   "version": "1.0",
-  "timestamp": 1764502022450,
-  "currentPlayerIndex": 2,
+  "timestamp": 1764516670040,
+  "currentPlayerIndex": 0,
   "players": [
     {
       "id": 0,
       "color": "PLAYER1_COLOR",
       "points": 2,
       "resources": {
-        "ORE": 3,
+        "ORE": 2,
         "WOOD": 0,
         "DESERT": 0,
-        "BRICK": 1,
+        "BRICK": 0,
         "WHEAT": 2,
-        "WOOL": 2
+        "WOOL": 1
       },
       "settlementInventory": 0,
       "roadInventory": 0
@@ -28,7 +28,7 @@
         "DESERT": 0,
         "BRICK": 0,
         "WHEAT": 0,
-        "WOOL": 9
+        "WOOL": 5
       },
       "settlementInventory": 0,
       "roadInventory": 0
@@ -38,12 +38,12 @@
       "color": "PLAYER3_COLOR",
       "points": 2,
       "resources": {
-        "ORE": 6,
+        "ORE": 4,
         "WOOD": 0,
         "DESERT": 0,
-        "BRICK": 1,
+        "BRICK": 0,
         "WHEAT": 0,
-        "WOOL": 1
+        "WOOL": 0
       },
       "settlementInventory": 0,
       "roadInventory": 0
@@ -53,11 +53,11 @@
       "color": "PLAYER4_COLOR",
       "points": 2,
       "resources": {
-        "ORE": 0,
+        "ORE": 1,
         "WOOD": 2,
         "DESERT": 0,
         "BRICK": 0,
-        "WHEAT": 4,
+        "WHEAT": 5,
         "WOOL": 0
       },
       "settlementInventory": 0,
@@ -159,7 +159,7 @@
       "corner": -1,
       "resource": "ORE",
       "number": 5,
-      "thief": true
+      "thief": false
     },
     {
       "x": -1,
@@ -199,7 +199,7 @@
       "corner": -1,
       "resource": "DESERT",
       "number": 7,
-      "thief": false
+      "thief": true
     },
     {
       "x": 0,

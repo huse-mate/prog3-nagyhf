@@ -11,32 +11,30 @@ import render.Colors;
 
 public class Player {
     private int id;
-    private EnumMap<Resource, Integer> resources;
-    private int cardCount;
-    private int devCardCount;
-    private int points;
-    private int knigthsPlayed;
-    private int maxRoadLength;
-    private ArrayList<Building> buildings;
     private Colors color;
-    private Random rand;
+    private Random rand = new Random();
+
+    private ArrayList<Building> buildings = new ArrayList<>();
+    private EnumMap<Resource, Integer> resources = new EnumMap<>(Resource.class);
+
+    private int cardCount = 0;
+    private int devCardCount = 0;
+    private int points = 0;
+
+    private int knigthsPlayed = 0;
+    private int maxRoadLength = 0;
+
+    private int freeRoadCards = 0;
+    private int knightCards = 0;
+    private int victoryPointCards = 0;
 
     private int settlementInventory = 0;
     private int roadInventory = 0;
     private int cityInventory = 0;
 
     public Player(int i, Colors c){
-        rand = new Random();
         id = i;
-        cardCount = 0;
-        devCardCount = 0;
-        points = 0;
-        knigthsPlayed = 0;
-        maxRoadLength = 0;
         color = c;
-        resources = new EnumMap<>(Resource.class);
-        buildings = new ArrayList<>();
-        cityInventory = 0;
         for (Resource r : Resource.values()) {
             resources.put(r, 0);
         }
@@ -85,12 +83,50 @@ public class Player {
         return points;
     }
 
-    public final int getKnightCount(){
+    public final int getKnightsPlayed(){
         return knigthsPlayed;
+    }
+
+    public void addKnightsPlayed() {
+        knigthsPlayed++;
     }
 
     public final int getMaxRoadLength(){
         return maxRoadLength;
+    }
+
+    public final int getDevCardCount(String type){
+        switch(type){
+            case "KNIGHT":
+                return knightCards;
+            case "POINT":
+                return victoryPointCards;
+            case "ROAD":
+                return freeRoadCards;
+            default:
+                return 0;
+        }
+    }
+
+    public void removeRoadBuildingCard(){
+        if(freeRoadCards > 0){
+            freeRoadCards--;
+            devCardCount--;
+        }
+    }
+
+    public void removePointCard(){
+        if(victoryPointCards > 0){
+            victoryPointCards--;
+            devCardCount--;
+        }
+    }
+
+    public void removeKnightCard(){
+        if(knightCards > 0){
+            knightCards--;
+            devCardCount--;
+        }
     }
 
     public final Colors getColor(){
@@ -103,6 +139,21 @@ public class Player {
 
     public void addPoints(int x){
         points += x;
+    }
+
+    public void addPointCard(){
+        victoryPointCards++;
+        devCardCount++;
+    }
+
+    public void addKnightCard(){
+        knightCards++;
+        devCardCount++;
+    }
+
+    public void addFreeRoadCard(){
+        freeRoadCards++;
+        devCardCount++;
     }
 
     public void addResource(Resource r, int n){
@@ -167,6 +218,12 @@ public class Player {
         }
     }
 
+
+    public boolean canBuyDevCard(){
+        return  (resources.get(Resource.ORE)>=1 &&
+                resources.get(Resource.WOOL)>=1 && 
+                resources.get(Resource.WHEAT)>=1);
+    }
 
     public boolean canBuildSettlement(){
         return  (resources.get(Resource.BRICK)>=1 &&

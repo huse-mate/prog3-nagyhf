@@ -31,6 +31,9 @@ public class TileButton extends JButton {
 
     @Override
     protected void paintComponent(Graphics g) {
+        if (tile.getNum() == 7 && !isEnabled() && !tile.getThief()) {
+            return;
+        }
         super.paintComponent(g);
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setFont(new Font("Arial", Font.BOLD, radius));
@@ -51,10 +54,12 @@ public class TileButton extends JButton {
         g2.drawOval(0, 0, radius * 2, radius * 2);
 
         if(!tile.getThief()) {
-            if(tile.getNum() < 10)
-                g2.drawString(String.valueOf(tile.getNum()), radius - 8, (int)(radius * 1.5) - 5);
-            else
+            if(tile.getNum() < 10){
+                if (tile.getNum() != 7)
+                    g2.drawString(String.valueOf(tile.getNum()), radius - 8, (int)(radius * 1.5) - 5);
+            } else {
                 g2.drawString(String.valueOf(tile.getNum()), (radius - 4) / 2, (int)(radius * 1.5) - 5);
+            }
         }
         
         g2.dispose();

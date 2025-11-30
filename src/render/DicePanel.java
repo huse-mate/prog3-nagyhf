@@ -5,7 +5,6 @@ import java.awt.*;
 
 
 public class DicePanel extends JPanel {
-    private final transient Image diceImage = new ImageIcon(new java.io.File("assets/dice.png").getAbsolutePath()).getImage();
     private final transient java.util.Random rand = new java.util.Random();
 
     private JButton throwButton;
@@ -14,7 +13,6 @@ public class DicePanel extends JPanel {
 
     private boolean canThrowDice;
     private int value = 0;
-    // synchronization helpers for a blocking take
     private final transient Object throwLock = new Object();
     private transient boolean hasNewThrow = false;
 
@@ -35,7 +33,6 @@ public class DicePanel extends JPanel {
             synchronized (throwLock) {
                 hasNewThrow = true;
                 throwLock.notifyAll();
-
             }
             repaint();
         });
@@ -46,6 +43,7 @@ public class DicePanel extends JPanel {
         saveButton = new JButton("Save Game");
         saveButton.setPreferredSize(new Dimension(200,50));
         GridBagConstraints saveGbc = new GridBagConstraints();
+        saveGbc.insets = new Insets(5, 0, 5, 0);
         saveGbc.gridx = 0;
         saveGbc.gridy = 0;
         add(saveButton, saveGbc);

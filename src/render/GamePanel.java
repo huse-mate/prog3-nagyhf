@@ -25,6 +25,8 @@ public class GamePanel extends JPanel {
 
 	private static final int SCREEN_SIZE = 900;
 	private static final int TILE_SIZE = 200;
+	private static final int TILE_SIZE_X = (int)(TILE_SIZE*0.86602);
+	private static final int TILE_SIZE_Y = TILE_SIZE;
 	private static final int TILE_GAP = 2;
 	private static final int TILE_BUTTON_SIZE = 60;
 
@@ -68,12 +70,7 @@ public class GamePanel extends JPanel {
 		super.paintComponent(g);
 		if (game != null) {
 			Graphics2D g2 = (Graphics2D) g;
-			java.awt.geom.AffineTransform old = g2.getTransform();
-			g2.translate(getWidth() / 2.0, getHeight() / 2.0);
-			g2.scale(1, -1);
 			renderMap(g2, game.getTileMap());
-			g2.setTransform(old);
-
 			resetPossibleCities();
 			resetRoads();
 
@@ -87,30 +84,6 @@ public class GamePanel extends JPanel {
 		
 	}
 
-    private void renderMap(Graphics2D g, TileMap map){
-		final int tileSizeY = TILE_SIZE;
-		final int tileSizeX = (int)(TILE_SIZE*0.86602);
-
-		final int tileOffsetX = -tileSizeX/2;
-		final int tileOffsetY = -tileSizeY/2;
-		
-		final double tileGapX = (double) tileSizeX + (double) TILE_GAP;
-		final double tileGapY = (tileSizeY * 0.75) + TILE_GAP;
-
-
-		for (Entry<Coordinate, Tile> entry : map.entries()) {
-			Coordinate coord = entry.getKey();
-
-			double px = tileGapX * (coord.getX() + coord.getY() / 2.0);
-			double py = tileGapY * coord.getY();
-			int drawTileX = (int) Math.round(px) + tileOffsetX;
-			int drawTileY = (int) Math.round(py) + tileOffsetY;
-
-
-			Tile t = entry.getValue();
-			g.drawImage(getTileTexture(t), drawTileX, drawTileY, tileSizeX, tileSizeY, this);
-		}
-	}
 
 	private void createBuildingButtons(){
 		HashMap<Coordinate, Player> buildingMap = new HashMap<>(game.getBuildingMap());
@@ -183,8 +156,6 @@ public class GamePanel extends JPanel {
 			TileButton tb = entry.getValue();
 			tb.setEnabled(true);
 		}
-		setBuildingEnabled(false);
-		frame.getGameScene().setEndTurnEnabled(false);
 	}
 
 	public void thiefMovementEnd() {
@@ -227,6 +198,17 @@ public class GamePanel extends JPanel {
 				);
 			default:
 				return new Coordinate(SCREEN_SIZE / 2 + screenX, SCREEN_SIZE / 2 + screenY, 0);
+		}
+	}
+
+	private void renderMap(Graphics2D g, TileMap map){
+		for (Entry<Coordinate, Tile> entry : map.entries()) {
+			Coordinate screenCoord = convertToScreenCoord(entry.getKey());
+			g.drawImage(
+				getTileTexture(entry.getValue()), 
+				screenCoord.getX() - SCREEN_SIZE / 2 - TILE_SIZE_X/2, 
+				screenCoord.getY() - SCREEN_SIZE / 2 - TILE_SIZE_Y/2, 
+				TILE_SIZE_X, TILE_SIZE_Y, this);
 		}
 	}
 

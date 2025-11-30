@@ -21,8 +21,12 @@ public class Game {
     private ArrayList<Player> players;
     private Player curPlayer;
     private int curIndex;
-    private int maxRoadLength;
-    private Player maxRoadOwner;
+
+    private int maxRoadLength = 0;
+    private Player maxRoadOwner = null;
+
+    private int maxKnightsPlayed = 0;
+    private Player maxKnightsOwner = null;
 
     private Random random = new Random();
 
@@ -43,9 +47,6 @@ public class Game {
 
         curPlayer = players.get(0);
         curIndex = 0;
-
-        maxRoadLength = 0;
-        maxRoadOwner = null;
     }
 
     /**
@@ -209,23 +210,26 @@ public class Game {
     }
 
     public void thiefMovement(Player curPlayer){
-        GameIO.thiefMovementStart();
+        // Create a latch and enter thief-movement UI mode, then wait for UI
+        // to signal the end of the movement phase.
+        GameIO.beginThiefMovement();
         GameIO.waitForThiefMovementEnd();
 
-        Set<Player> victims = getThiefVictims();
+        Set<Player> victims = getThiefVictims(curPlayer);
         if ( victims.isEmpty() ) {
             return;
         }
         int victimIndex = random.nextInt(victims.size());
         Player victim = (Player) victims.toArray()[victimIndex];
         Resource loot = victim.removeRandomResource();
+        System.out.println( curPlayer + " stole " + loot + " from " + victim);
         if (loot != null) curPlayer.addResource(loot, 1);
     }
 
-    public Set<Player> getThiefVictims(){
+    public Set<Player> getThiefVictims(Player cur){
         Set<Player> victims = new HashSet<>();
         players.forEach( p -> {
-            if(p != curPlayer){
+            if(p != cur){
                 boolean adjacentToThief = false;
                 for (Building b : p.getBuildings()) {
                     for (Tile nb : tileMap.getNeighbouringTiles(b.getCoordinate())) {
@@ -329,6 +333,56 @@ public class Game {
             }
         }
         GameIO.refresh();
+    }
+
+    public void buyDevCard(Player p){
+        if (!p.canBuyDevCard())
+            return;
+        p.addResource(Resource.WOOL, -1);
+        p.addResource(Resource.WHEAT, -1);
+        p.addResource(Resource.ORE, -1);
+
+        int rand = random.nextInt(25);
+        if (rand < 5)
+            p.addPointCard();
+        else if (rand < 8)  
+            p.addFreeRoadCard();
+        else 
+            p.addKnightCard();
+
+    }
+
+    public void useKnightCard(Player p){
+        p.removeKnightCard();
+        p.addKnightsPlayed();
+        if (p.getKnightsPlayed() >= 3 && p.getKnightsPlayed() > maxKnightsPlayed) {
+            if (maxKnightsOwner != null && maxKnightsOwner != p) {
+                maxKnightsOwner.addPoints(-2);
+            }
+            maxKnightsOwner = p;
+            maxKnightsPlayed = p.getKnightsPlayed();
+            p.addPoints(2);
+        }
+
+        // Ensure thief movement doesn't block the EDT. If this method was
+        // called from the Swing event thread (e.g. via a button), run the
+        // thief movement on a background thread so the UI remains responsive.
+        if (javax.swing.SwingUtilities.isEventDispatchThread()) {
+            new Thread(() -> thiefMovement(p), "thief-movement-thread").start();
+        } else {
+            thiefMovement(p);
+        }
+    }
+
+    public void useRoadBuildingCard(Player p){
+        p.removeRoadBuildingCard();
+        p.addRoadForStart();
+        p.addRoadForStart();
+    }
+
+    public void useVictoryPointCard(Player p){
+        p.removePointCard();
+        p.addPoints(1);
     }
 
 
