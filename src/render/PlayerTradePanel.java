@@ -120,6 +120,13 @@ public class PlayerTradePanel extends JPanel {
         return receiveMap;
     }
 
+    public void setPlayers(List<Player> players) {
+        traderInput.removeAllItems();
+        for (Player p : players) {
+            traderInput.addItem(p);
+        }
+    }
+
     public Player getTrader(){
         return (Player) traderInput.getSelectedItem();
     }

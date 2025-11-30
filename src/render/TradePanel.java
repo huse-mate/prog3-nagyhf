@@ -45,4 +45,8 @@ public class TradePanel extends JPanel {
         devCardPanel.updateStatus(currentPlayer);
     }
 
+    public void setPlayers(List<Player> players) {
+        playerTradePanel.setPlayers(players);
+    }
+
 }

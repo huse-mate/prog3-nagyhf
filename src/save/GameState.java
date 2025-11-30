@@ -18,13 +18,25 @@ public class GameState {
     public List<BuildingDTO> buildings = new ArrayList<>();
     public List<RoadDTO> roads = new ArrayList<>();
 
+    public int maxKnightsPlayed;
+    public int maxKnightsOwnerId;
+
     public static class PlayerDTO {
         public int id;
         public String color;
+
         public int points;
+
+        public int knightsPlayed;
+
         public Map<String,Integer> resources = new HashMap<>();
         public int settlementInventory;
         public int roadInventory;
+        public int cityInventory;
+
+        public int freeRoadCards;
+        public int knightCards;
+        public int victoryPointCards;
     }
 
     public static class TileDTO {
@@ -58,6 +70,8 @@ public class GameState {
     public static GameState fromGame(Game game) {
         GameState s = new GameState();
         s.currentPlayerIndex = game.getPlayers().indexOf(game.getCurrentPlayer());
+        s.maxKnightsPlayed = game.getMaxKnightsPlayed();
+        s.maxKnightsOwnerId = (game.getMaxKnightsOwner() == null) ? -1 : game.getMaxKnightsOwner().getId();
 
         // players
         for (Player p : game.getPlayers()) {
@@ -67,6 +81,12 @@ public class GameState {
             pd.points = p.getScore();
             pd.settlementInventory = p.getSettlementInventory();
             pd.roadInventory = p.getRoadInventory();
+            pd.cityInventory = p.getCityInventory();
+            
+            pd.knightsPlayed = p.getKnightsPlayed();
+            pd.freeRoadCards = p.getDevCardCount("ROAD");
+            pd.knightCards = p.getDevCardCount("KNIGHT");
+            pd.victoryPointCards = p.getDevCardCount("POINT");
             for (Resource r : Resource.values()) {
                 pd.resources.put(r.name(), p.getResourceCount(r));
             }

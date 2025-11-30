@@ -4,6 +4,7 @@ import javax.swing.*;
 
 import game.*;
 import io.GameIO;
+import render.MainFrame.Scene;
 import save.GameState;
 import save.SaveManager;
 
@@ -25,12 +26,13 @@ public class GameScene extends BackgroundPanel{
     private static final int SIDEWIDTH = 450;
 
     public GameScene(MainFrame frame, Game game) {
-        super();
+        super(new ImageIcon(new java.io.File("assets/table.png").getAbsolutePath()).getImage());
         materialsPanel = new MaterialsPanel();
         gamePanel = new GamePanel(frame);
         dicePanel = new DicePanel();
         // wire end-turn button to notify the game's end-turn waiter
         this.game = game;
+        this.frame = frame;
         playersPanel = new PlayersPanel(frame, game);
         tradePanel = new TradePanel(game.getPlayers());
 
@@ -59,6 +61,11 @@ public class GameScene extends BackgroundPanel{
         repaint();
     }
 
+    public void gameOver(Player winner) {
+        frame.setWinner(winner);
+        frame.showScene(Scene.WIN);
+    }
+
     public void saveGame(){
         try {
             SaveManager.save(Path.of("save/prev.json"), game);
@@ -72,6 +79,7 @@ public class GameScene extends BackgroundPanel{
             GameState loadedState = SaveManager.load(Path.of("save/prev.json"));
             game = Game.fromState(loadedState);
             GameIO.setGame(game);
+            tradePanel.setPlayers(game.getPlayers());
         } catch (Exception e) {
             e.printStackTrace();
         }

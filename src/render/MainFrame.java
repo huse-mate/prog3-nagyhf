@@ -13,7 +13,8 @@ public class MainFrame extends JFrame {
 
     public enum Scene{
         MAIN_MENU("MainMenu"),
-        GAME("Game");
+        GAME("Game"),
+        WIN("Win");
 
         private String name;
         Scene(String n){
@@ -34,13 +35,16 @@ public class MainFrame extends JFrame {
         // Create panels
         MenuPanel menuPanel = new MenuPanel(this);
         GameScene gamePanel = new GameScene(this, game);
+        WinPanel winPanel = new WinPanel();
         scenes = new HashMap<>();
         scenes.put(Scene.GAME, gamePanel);
         scenes.put(Scene.MAIN_MENU, menuPanel);
+        scenes.put(Scene.WIN, winPanel);
 
         // Add them to the mainPanel
         addScene(menuPanel, Scene.MAIN_MENU);
         addScene(gamePanel, Scene.GAME);
+        addScene(winPanel, Scene.WIN);
 
         // Add mainPanel to frame
         add(mainPanel);
@@ -72,6 +76,11 @@ public class MainFrame extends JFrame {
 
     public void showScene(Scene scene) {
         cardLayout.show(mainPanel, scene.name);
+    }
+
+    public void setWinner(Player winner){
+        WinPanel winPanel = (WinPanel) scenes.get(Scene.WIN);
+        winPanel.setWinner(winner);
     }
 
     public void addScene(JPanel panel, Scene scene){

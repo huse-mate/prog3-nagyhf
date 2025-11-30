@@ -156,6 +156,10 @@ public class Player {
         devCardCount++;
     }
 
+    public void setKnightsPlayed(int knightsPlayed) {
+        this.knigthsPlayed = knightsPlayed;
+    }
+
     public void addResource(Resource r, int n){
         resources.put(r, resources.get(r) + n);
         cardCount += n;

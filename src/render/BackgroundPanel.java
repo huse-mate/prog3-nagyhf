@@ -4,9 +4,11 @@ import javax.swing.*;
 import java.awt.*;
 
 public class BackgroundPanel extends JPanel {
-    private final transient Image bgImage = new ImageIcon(new java.io.File("assets/table.png").getAbsolutePath()).getImage();
+    private Image bgImage;
 
-    public BackgroundPanel(){}
+    public BackgroundPanel(Image bg) {
+        bgImage = bg;
+    }
 
     @Override
     protected void paintComponent(Graphics g) {

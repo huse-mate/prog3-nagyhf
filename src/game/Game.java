@@ -22,6 +22,8 @@ public class Game {
     private Player curPlayer;
     private int curIndex;
 
+    public static final int POINTS_TO_WIN = 10;
+
     private int maxRoadLength = 0;
     private Player maxRoadOwner = null;
 
@@ -73,6 +75,12 @@ public class Game {
             Colors col = Colors.valueOf(pd.color);
             Player p = new Player(pd.id, col);
             if (pd.points > 0) p.addPoints(pd.points);
+            if (pd.knightsPlayed > 0) p.setKnightsPlayed(pd.knightsPlayed);
+            
+            for (int i = 0; i < pd.freeRoadCards; i++) p.addFreeRoadCard();
+            for (int i = 0; i < pd.knightCards; i++) p.addKnightCard();
+            for (int i = 0; i < pd.victoryPointCards; i++) p.addPointCard();
+
             for (Map.Entry<String, Integer> en : pd.resources.entrySet()) {
                 Resource r = Resource.valueOf(en.getKey());
                 int count = en.getValue();
@@ -80,6 +88,7 @@ public class Game {
             }
             for (int i = 0; i < pd.settlementInventory; i++) p.addSettlementForStart();
             for (int i = 0; i < pd.roadInventory; i++) p.addRoadForStart();
+            for (int i = 0; i < pd.cityInventory; i++) p.addCityForStart();
             newPlayers.add(p);
         }
         g.players = newPlayers;
@@ -118,7 +127,8 @@ public class Game {
         // set current player
         g.curIndex = s.currentPlayerIndex;
         g.curPlayer = g.players.get(g.curIndex);
-
+        g.maxKnightsPlayed = s.maxKnightsPlayed;
+        g.maxKnightsOwner = (s.maxKnightsOwnerId == -1) ? null : g.players.get(s.maxKnightsOwnerId);
         
 
         return g;
@@ -150,6 +160,14 @@ public class Game {
 
     public List<RoadNetwork.Road> getAllRoads() {
         return roads.getAllRoads();
+    }
+
+    public int getMaxKnightsPlayed() {
+        return maxKnightsPlayed;
+    }
+
+    public Player getMaxKnightsOwner() {
+        return maxKnightsOwner;
     }
 
     public void gameStartSequence(){
@@ -189,6 +207,10 @@ public class Game {
         GameIO.waitForEndTurn();
 
         // advance to next player
+        if (curPlayer.getScore() >= POINTS_TO_WIN) {
+            GameIO.gameOver(curPlayer);
+            return;
+        }
         nextPlayer();
         GameIO.refresh();
     }
@@ -222,7 +244,6 @@ public class Game {
         int victimIndex = random.nextInt(victims.size());
         Player victim = (Player) victims.toArray()[victimIndex];
         Resource loot = victim.removeRandomResource();
-        System.out.println( curPlayer + " stole " + loot + " from " + victim);
         if (loot != null) curPlayer.addResource(loot, 1);
     }
 

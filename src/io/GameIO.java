@@ -33,6 +33,10 @@ public class GameIO {
         return null;
     }
 
+    public static void gameOver(Player winner) {
+        gameScene.gameOver(winner);
+    }
+
     public static void gameStartSequenceBegin() {
         if (gameScene != null) {
             gameScene.gameStartSequenceBegin();

@@ -1,67 +1,87 @@
 {
   "version": "1.0",
-  "timestamp": 1764516670040,
+  "timestamp": 1764522584638,
   "currentPlayerIndex": 0,
   "players": [
     {
       "id": 0,
       "color": "PLAYER1_COLOR",
       "points": 2,
+      "knightsPlayed": 0,
       "resources": {
-        "ORE": 2,
+        "ORE": 0,
         "WOOD": 0,
         "DESERT": 0,
-        "BRICK": 0,
-        "WHEAT": 2,
-        "WOOL": 1
+        "BRICK": 2,
+        "WHEAT": 4,
+        "WOOL": 0
       },
       "settlementInventory": 0,
-      "roadInventory": 0
+      "roadInventory": 0,
+      "cityInventory": 0,
+      "freeRoadCards": 0,
+      "knightCards": 0,
+      "victoryPointCards": 0
     },
     {
       "id": 1,
       "color": "PLAYER2_COLOR",
       "points": 2,
+      "knightsPlayed": 0,
       "resources": {
-        "ORE": 0,
+        "ORE": 2,
         "WOOD": 0,
         "DESERT": 0,
-        "BRICK": 0,
-        "WHEAT": 0,
-        "WOOL": 5
+        "BRICK": 2,
+        "WHEAT": 1,
+        "WOOL": 0
       },
       "settlementInventory": 0,
-      "roadInventory": 0
+      "roadInventory": 0,
+      "cityInventory": 0,
+      "freeRoadCards": 0,
+      "knightCards": 0,
+      "victoryPointCards": 0
     },
     {
       "id": 2,
       "color": "PLAYER3_COLOR",
       "points": 2,
+      "knightsPlayed": 0,
       "resources": {
-        "ORE": 4,
-        "WOOD": 0,
+        "ORE": 0,
+        "WOOD": 2,
         "DESERT": 0,
         "BRICK": 0,
-        "WHEAT": 0,
-        "WOOL": 0
+        "WHEAT": 1,
+        "WOOL": 4
       },
       "settlementInventory": 0,
-      "roadInventory": 0
+      "roadInventory": 0,
+      "cityInventory": 0,
+      "freeRoadCards": 0,
+      "knightCards": 0,
+      "victoryPointCards": 0
     },
     {
       "id": 3,
       "color": "PLAYER4_COLOR",
       "points": 2,
+      "knightsPlayed": 0,
       "resources": {
-        "ORE": 1,
-        "WOOD": 2,
+        "ORE": 0,
+        "WOOD": 0,
         "DESERT": 0,
-        "BRICK": 0,
-        "WHEAT": 5,
+        "BRICK": 2,
+        "WHEAT": 0,
         "WOOL": 0
       },
       "settlementInventory": 0,
-      "roadInventory": 0
+      "roadInventory": 0,
+      "cityInventory": 0,
+      "freeRoadCards": 0,
+      "knightCards": 1,
+      "victoryPointCards": 0
     }
   ],
   "tiles": [
@@ -69,7 +89,7 @@
       "x": 0,
       "y": -2,
       "corner": -1,
-      "resource": "WHEAT",
+      "resource": "BRICK",
       "number": 9,
       "thief": false
     },
@@ -77,7 +97,7 @@
       "x": 1,
       "y": -1,
       "corner": -1,
-      "resource": "WOOL",
+      "resource": "WOOD",
       "number": 3,
       "thief": false
     },
@@ -85,7 +105,7 @@
       "x": 2,
       "y": 0,
       "corner": -1,
-      "resource": "WOOL",
+      "resource": "ORE",
       "number": 8,
       "thief": false
     },
@@ -93,7 +113,7 @@
       "x": 1,
       "y": -2,
       "corner": -1,
-      "resource": "WOOD",
+      "resource": "WOOL",
       "number": 12,
       "thief": false
     },
@@ -101,7 +121,7 @@
       "x": 2,
       "y": -1,
       "corner": -1,
-      "resource": "WOOL",
+      "resource": "BRICK",
       "number": 4,
       "thief": false
     },
@@ -109,7 +129,7 @@
       "x": 2,
       "y": -2,
       "corner": -1,
-      "resource": "WOOD",
+      "resource": "WOOL",
       "number": 11,
       "thief": false
     },
@@ -117,15 +137,15 @@
       "x": -2,
       "y": 2,
       "corner": -1,
-      "resource": "ORE",
+      "resource": "WOOL",
       "number": 6,
-      "thief": false
+      "thief": true
     },
     {
       "x": -2,
       "y": 1,
       "corner": -1,
-      "resource": "WOOD",
+      "resource": "WHEAT",
       "number": 3,
       "thief": false
     },
@@ -133,7 +153,7 @@
       "x": -1,
       "y": 2,
       "corner": -1,
-      "resource": "WHEAT",
+      "resource": "WOOD",
       "number": 2,
       "thief": false
     },
@@ -141,7 +161,7 @@
       "x": -2,
       "y": 0,
       "corner": -1,
-      "resource": "WOOD",
+      "resource": "BRICK",
       "number": 8,
       "thief": false
     },
@@ -149,7 +169,7 @@
       "x": -1,
       "y": 1,
       "corner": -1,
-      "resource": "WOOL",
+      "resource": "WHEAT",
       "number": 4,
       "thief": false
     },
@@ -157,7 +177,7 @@
       "x": 0,
       "y": 2,
       "corner": -1,
-      "resource": "ORE",
+      "resource": "WHEAT",
       "number": 5,
       "thief": false
     },
@@ -165,7 +185,7 @@
       "x": -1,
       "y": 0,
       "corner": -1,
-      "resource": "BRICK",
+      "resource": "WOOD",
       "number": 5,
       "thief": false
     },
@@ -173,7 +193,7 @@
       "x": 0,
       "y": 1,
       "corner": -1,
-      "resource": "ORE",
+      "resource": "WOOL",
       "number": 9,
       "thief": false
     },
@@ -181,7 +201,7 @@
       "x": -1,
       "y": -1,
       "corner": -1,
-      "resource": "BRICK",
+      "resource": "WHEAT",
       "number": 10,
       "thief": false
     },
@@ -189,7 +209,7 @@
       "x": 1,
       "y": 1,
       "corner": -1,
-      "resource": "WHEAT",
+      "resource": "WOOD",
       "number": 10,
       "thief": false
     },
@@ -199,13 +219,13 @@
       "corner": -1,
       "resource": "DESERT",
       "number": 7,
-      "thief": true
+      "thief": false
     },
     {
       "x": 0,
       "y": -1,
       "corner": -1,
-      "resource": "WHEAT",
+      "resource": "ORE",
       "number": 6,
       "thief": false
     },
@@ -213,7 +233,7 @@
       "x": 1,
       "y": 0,
       "corner": -1,
-      "resource": "BRICK",
+      "resource": "ORE",
       "number": 11,
       "thief": false
     }
@@ -222,74 +242,74 @@
     {
       "type": "SETTLEMENT",
       "ownerId": 0,
-      "x": 1,
-      "y": 0,
+      "x": -1,
+      "y": -1,
       "corner": 0
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 0,
-      "x": 2,
+      "x": -1,
       "y": 0,
       "corner": 0
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 1,
-      "x": 2,
-      "y": -1,
-      "corner": 0
+      "x": 1,
+      "y": 0,
+      "corner": 1
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 1,
-      "x": 2,
-      "y": -2,
+      "x": 1,
+      "y": -1,
+      "corner": 1
+    },
+    {
+      "type": "SETTLEMENT",
+      "ownerId": 2,
+      "x": 0,
+      "y": 1,
       "corner": 0
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 2,
       "x": 1,
-      "y": -1,
-      "corner": 0
-    },
-    {
-      "type": "SETTLEMENT",
-      "ownerId": 2,
-      "x": 0,
-      "y": 0,
+      "y": 1,
       "corner": 0
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 3,
-      "x": 0,
+      "x": 1,
       "y": -2,
       "corner": 1
     },
     {
       "type": "SETTLEMENT",
       "ownerId": 3,
-      "x": 1,
-      "y": -3,
+      "x": 0,
+      "y": -2,
       "corner": 1
     }
   ],
   "roads": [
     {
       "ownerId": 0,
-      "x1": 1,
-      "y1": 0,
-      "c1": 0,
-      "x2": 1,
-      "y2": 0,
-      "c2": 1
+      "x1": -1,
+      "y1": -1,
+      "c1": 1,
+      "x2": -1,
+      "y2": -1,
+      "c2": 0
     },
     {
       "ownerId": 1,
       "x1": 1,
-      "y1": -1,
+      "y1": 0,
       "c1": 1,
       "x2": 2,
       "y2": -1,
@@ -297,11 +317,20 @@
     },
     {
       "ownerId": 2,
-      "x1": 1,
-      "y1": -1,
+      "x1": 0,
+      "y1": 1,
       "c1": 0,
       "x2": 0,
-      "y2": 0,
+      "y2": 1,
+      "c2": 1
+    },
+    {
+      "ownerId": 3,
+      "x1": 1,
+      "y1": -2,
+      "c1": 0,
+      "x2": 1,
+      "y2": -2,
       "c2": 1
     },
     {
@@ -310,25 +339,16 @@
       "y1": -2,
       "c1": 1,
       "x2": 1,
-      "y2": -3,
+      "y2": -2,
       "c2": 0
     },
     {
-      "ownerId": 3,
-      "x1": 1,
-      "y1": -3,
-      "c1": 0,
-      "x2": 1,
-      "y2": -3,
-      "c2": 1
-    },
-    {
       "ownerId": 2,
-      "x1": 0,
-      "y1": 0,
+      "x1": 1,
+      "y1": 1,
       "c1": 0,
       "x2": 0,
-      "y2": 0,
+      "y2": 1,
       "c2": 1
     },
     {
@@ -337,26 +357,55 @@
       "y1": -1,
       "c1": 1,
       "x2": 2,
-      "y2": -2,
+      "y2": -1,
       "c2": 0
     },
     {
       "ownerId": 0,
-      "x1": 1,
+      "x1": -1,
       "y1": 0,
+      "c1": 0,
+      "x2": -2,
+      "y2": 0,
+      "c2": 1
+    },
+    {
+      "ownerId": 2,
+      "x1": -1,
+      "y1": 1,
       "c1": 1,
-      "x2": 2,
+      "x2": 0,
+      "y2": 1,
+      "c2": 0
+    },
+    {
+      "ownerId": 2,
+      "x1": -1,
+      "y1": 1,
+      "c1": 1,
+      "x2": 0,
       "y2": 0,
       "c2": 0
     },
     {
-      "ownerId": 1,
-      "x1": 1,
+      "ownerId": 0,
+      "x1": -2,
       "y1": 0,
       "c1": 1,
-      "x2": 2,
+      "x2": -1,
       "y2": -1,
       "c2": 0
+    },
+    {
+      "ownerId": 0,
+      "x1": -1,
+      "y1": -1,
+      "c1": 1,
+      "x2": 0,
+      "y2": -2,
+      "c2": 0
     }
-  ]
+  ],
+  "maxKnightsPlayed": 0,
+  "maxKnightsOwnerId": -1
 }
