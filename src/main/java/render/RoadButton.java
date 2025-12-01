@@ -6,17 +6,12 @@ import javax.swing.*;
 
 import game.Coordinate;
 import game.Player;
-import game.buildings.RoadNetwork;
-
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class RoadButton extends JButton {
     
     private static final int THICKNESS = 12;
-    private static final int TOLERANCE = 5;
-    private int x1, y1, x2, y2;
     private State state;
     private Player owner;
     private Polygon shape;
@@ -74,10 +69,6 @@ public class RoadButton extends JButton {
         shape.addPoint(pointsFromSecond.get(1).getX(), pointsFromSecond.get(1).getY());
         shape.addPoint(pointsFromFirst.get(1).getX(), pointsFromFirst.get(1).getY());
 
-        this.x1 = x1;
-        this.y1 = y1;
-        this.x2 = x2;
-        this.y2 = y2;
         this.coord1 = c1;
         this.coord2 = c2;
         this.state = State.EMPTY;

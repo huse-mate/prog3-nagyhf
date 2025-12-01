@@ -10,17 +10,13 @@ import java.util.HashMap;
 
 public class PlayersPanel extends JPanel {
 
-    private final MainFrame frame;
-    private final Game game; 
 
     private HashMap<Player, PlayerStatusPanel> playerStatus;
 
-    public PlayersPanel(MainFrame frame, Game game) {
+    public PlayersPanel(Game game) {
 		setOpaque(false);
         setLayout(new FlowLayout(FlowLayout.CENTER, 100, 0));
 
-        this.frame = frame;
-		this.game = game;
         playerStatus = new HashMap<>();
         game.getPlayers().forEach( player -> {
             PlayerStatusPanel playerBox = new PlayerStatusPanel(player);

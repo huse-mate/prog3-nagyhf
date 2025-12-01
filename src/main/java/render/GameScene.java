@@ -27,12 +27,12 @@ public class GameScene extends BackgroundPanel{
     public GameScene(MainFrame frame, Game game) {
         super(new ImageIcon(new java.io.File("assets/table.png").getAbsolutePath()).getImage());
         materialsPanel = new MaterialsPanel();
-        gamePanel = new GamePanel(frame);
+        gamePanel = new GamePanel();
         dicePanel = new DicePanel();
         // wire end-turn button to notify the game's end-turn waiter
         this.game = game;
         this.frame = frame;
-        playersPanel = new PlayersPanel(frame, game);
+        playersPanel = new PlayersPanel(game);
         tradePanel = new TradePanel(game.getPlayers());
 
         setLayout(new BorderLayout());

@@ -13,7 +13,6 @@ import java.util.Map.Entry;
 
 public class GamePanel extends JPanel {
 
-    private MainFrame frame;
 	private Game game;
 	private HashMap<Coordinate, BuildingButton> buildingButtonMap;
 	private HashMap<RoadNetwork.Road, RoadButton> roadButtonMap;
@@ -31,8 +30,7 @@ public class GamePanel extends JPanel {
 	private static final int[] BUILDING_OFFSET_X = { 0, (int)(TILE_SIZE*0.43301)};
 	private static final int[] BUILDING_OFFSET_Y = { -TILE_SIZE/2, -TILE_SIZE/2+45}; // ezt lehetne rendes matekkal szamolni
 
-    public GamePanel(MainFrame frame) {
-		this.frame = frame;
+    public GamePanel() {
 		this.game = null;
 		
     }
@@ -236,7 +234,7 @@ public class GamePanel extends JPanel {
 
 	private void renderPossibleUpgrades(){
 		if(!game.getCurrentPlayer().canBuildCity()) return;
-		game.getCurrentPlayer().getBuildings().forEach((b) -> {
+		game.getCurrentPlayer().getBuildings().forEach(b -> {
 			if(b.getClass() == Settlement.class){
 				Coordinate c = b.getCoordinate();
 				BuildingButton bb = buildingButtonMap.get(c);

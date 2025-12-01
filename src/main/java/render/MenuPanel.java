@@ -1,7 +1,6 @@
 package render;
 import javax.swing.*;
 
-import render.MainFrame.Scene;
 
 import java.awt.*;
 
