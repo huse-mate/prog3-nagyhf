@@ -21,6 +21,9 @@ public class Game {
     private int curIndex;
 
     public static final int POINTS_TO_WIN = 10;
+    public static final int KNIGHT_CARD_WEIGHT = 17;
+    public static final int ROAD_CARD_WEIGHT = 3;
+    public static final int POINT_CARD_WEIGHT = 5;
 
     private int maxRoadLength = 0;
     private Player maxRoadOwner = null;
@@ -52,6 +55,8 @@ public class Game {
     /**
      * Construct a new Game instance from a previously saved GameState DTO.
      * This replaces tiles, players, buildings and roads to match the saved state.
+     * @param s the GameState DTO to restore from
+     * @return a new Game instance matching the saved state
      */
     public static Game fromState(GameState s) {
         Game g = new Game();
@@ -168,6 +173,9 @@ public class Game {
         return maxKnightsOwner;
     }
 
+    /**
+     * The game start sequence, where players place their starting settlements and roads
+     */
     public void gameStartSequence(){
         GameIO.gameStartSequenceBegin();
         boolean reverse = false;
@@ -191,6 +199,9 @@ public class Game {
         GameIO.refresh();
     }
 
+    /**     
+     * One turn of the current player, including dice throw and waiting for end turn, then advancing to the next player
+     */
     public void turn(){
         // enable UI for dice
         GameIO.beginTurn();
@@ -213,6 +224,9 @@ public class Game {
         GameIO.refresh();
     }
 
+    /**
+     * Handle a dice throw by the current player, distributing resources or handling a 7 throw
+     */
     public void diceThrow(){
         int dice = GameIO.getDiceThrow();
         if(dice == 7){
@@ -229,6 +243,10 @@ public class Game {
         }
     }
 
+    /**
+     * Handle the thief movement phase for the current player
+     * @param curPlayer the current player
+     */
     public void thiefMovement(Player curPlayer){
         // Create a latch and enter thief-movement UI mode, then wait for UI
         // to signal the end of the movement phase.
@@ -245,6 +263,11 @@ public class Game {
         if (loot != null) curPlayer.addResource(loot, 1);
     }
 
+    /**
+     * Get the set of players who are victims of the thief for the current player
+     * @param cur the current player
+     * @return a set of players who are victims of the thief
+     */
     public Set<Player> getThiefVictims(Player cur){
         Set<Player> victims = new HashSet<>();
         players.forEach( p -> {
@@ -267,6 +290,12 @@ public class Game {
         return victims;
     }
 
+    /**
+     * Check if player p can give the specified resources, used for trading
+     * @param p the player to check
+     * @param give map of the resources to give, with the resource as key and amount as value
+     * @return true if player p can give the specified resources, false otherwise
+     */
     public boolean canGive(Player p, Map<Resource, Integer> give){
         for (Resource r : Resource.values()) {
             int amountGive = give.getOrDefault(r, 0);
@@ -277,6 +306,12 @@ public class Game {
         return true;
     }
 
+    /**
+     * Attempt a trade between the current player and another player, only does so if both players have the specified resources
+     * @param to the player to trade with
+     * @param give map of resources the current player gives, with resource as key and amount as value
+     * @param receive map of resources the current player receives, with resource as key and amount as value
+     */
     public void attemptTrade(Player to, Map<Resource, Integer> give, Map<Resource, Integer> receive){
         if (!canGive(curPlayer, give) || !canGive(to, receive)) 
             return;
@@ -291,8 +326,13 @@ public class Game {
         }
     }
 
+    /**
+     * Attempt a trade between the current player and the bank, at a default rate of 4:1
+     * @param give the resource to give to the bank
+     * @param receive the resource to receive from the bank
+     */
     public void attemptTradeWithBank(Resource give, Resource receive){
-        int rate = 4; // default 4:1
+        int rate = 4;
         if (curPlayer.getResourceCount(give) < rate) {
             return;
         }
@@ -300,7 +340,13 @@ public class Game {
         curPlayer.addResource(receive, 1);
     }
 
-
+    /**
+     * Create a new building of the specified type for player p at location loc
+     * This function doesnt check for input validity
+     * @param p the player to create the building for
+     * @param type the type of building to create
+     * @param loc the coordinate to create the building at
+     */
     public void newBuilding(Player p, Building.Types type, Coordinate loc){
         p.addPoints(1);
         ArrayList<Tile> neighbours = new ArrayList<>(tileMap.getNeighbouringTiles(loc));
@@ -332,6 +378,13 @@ public class Game {
         GameIO.refresh();
     }
 
+    /**
+     * Create a new road for player p between coordinates c1 and c2
+     * This function doesnt check for input validity
+     * @param p the player to create the road for
+     * @param c1 the first coordinate of the road
+     * @param c2 the second coordinate of the road
+     */
     public void newRoad(Player p, Coordinate c1, Coordinate c2){
         roads.newRoad(p, c1, c2);
         if (p.getRoadInventory() > 0) {
@@ -354,6 +407,27 @@ public class Game {
         GameIO.refresh();
     }
 
+    /**
+     * Adds the thief to the specified tile, removing it from any other tile that has it.
+     * @param tile the tile to add the thief to
+     */
+    public void moveThief(Tile tile){
+        for (Tile t : tileMap) {
+            if(t.getThief()){
+                t.removeThief();
+                break;
+            }
+        }
+        tile.addThief();
+    }
+
+    /**
+     * Buy a development card for player p, if they can afford it
+     * Increases the player's development card inventory accordingly
+     * Chooses a random development card to give to the player
+     * The odds are specified by the weights defined in Game class
+     * @param p the player buying the development card
+     */
     public void buyDevCard(Player p){
         if (!p.canBuyDevCard())
             return;
@@ -361,16 +435,20 @@ public class Game {
         p.addResource(Resource.WHEAT, -1);
         p.addResource(Resource.ORE, -1);
 
-        int rand = random.nextInt(25);
-        if (rand < 5)
+        int rand = random.nextInt(KNIGHT_CARD_WEIGHT + ROAD_CARD_WEIGHT + POINT_CARD_WEIGHT);
+        if (rand < POINT_CARD_WEIGHT)
             p.addPointCard();
-        else if (rand < 8)  
+        else if (rand < POINT_CARD_WEIGHT + ROAD_CARD_WEIGHT)  
             p.addFreeRoadCard();
         else 
             p.addKnightCard();
 
     }
 
+    /**
+     * Use a knight card for player p, moving the thief and updating largest army if needed
+     * @param p the player using the knight card
+     */
     public void useKnightCard(Player p){
         p.removeKnightCard();
         p.addKnightsPlayed();
@@ -393,21 +471,37 @@ public class Game {
         }
     }
 
+    /**
+     * Use a road building card for player p, allowing them to place two roads for free
+     * @param p the player using the road building card
+     */
     public void useRoadBuildingCard(Player p){
         p.removeRoadBuildingCard();
         p.addRoadForStart();
         p.addRoadForStart();
     }
 
+    /**
+     * Use a victory point card for player p, increasing their points by 1
+     * @param p the player using the victory point card
+     */
     public void useVictoryPointCard(Player p){
         p.removePointCard();
         p.addPoints(1);
     }
 
+    /**
+     * Get all possible settlement locations for the current player
+     * @param start whether this is the starting placement phase
+     * @return a set of possible settlement coordinates for the current player, if start is true, all road nodes are considered
+     */
     public Set<Coordinate> getPossibleSettlements(boolean start){
         return roads.getPossibleSettlements(curPlayer, start);
     }
     
+    /**
+     * Advance to the next player in turn order
+     */
     private void nextPlayer(){
         if(curIndex >= players.size()-1){
             curIndex = 0;
@@ -417,6 +511,12 @@ public class Game {
         curPlayer = players.get(curIndex);
     }
 
+    /**
+     * Debug function for giving resources to a player
+     * @param playerId the id of the player to give resources to
+     * @param r the resource type to give
+     * @param n the amount of resources to give
+     */
     public void debugGiveResources(int playerId, Resource r, int n){
         players.get(playerId).addResource(r, n);
     }

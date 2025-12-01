@@ -56,6 +56,11 @@ public class TileMap implements Iterable<Tile> {
         return tiles.get(c);
     }
 
+    /**
+     * Get the tiles neighboring a given coordinate (a corner, not a tile center)
+     * @param loc the coordinate to get neighbors for
+     * @return a list of neighboring tiles
+     */
     public List<Tile> getNeighbouringTiles(Coordinate loc) {
         int corner = loc.getCorner();
         ArrayList<Tile> neighbours = new ArrayList<>();

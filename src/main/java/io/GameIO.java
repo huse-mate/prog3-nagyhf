@@ -24,39 +24,48 @@ public class GameIO {
     }
 
     public static Player getCurrentPlayer(){
-        if (game != null) {
-            return game.getCurrentPlayer();
-        }
-        return null;
+        return game.getCurrentPlayer();
+    }
+
+    public static GameScene getGameScene() {
+        return gameScene;
     }
 
     public static void gameOver(Player winner) {
         gameScene.gameOver(winner);
     }
 
+    /** 
+     * Configures buttons at the game start sequence, so only the allowed actions are possible
+     */
     public static void gameStartSequenceBegin() {
-        if (gameScene != null) {
+        SwingUtilities.invokeLater(() -> {
             gameScene.gameStartSequenceBegin();
             gameScene.setSaveButtonEnabled(false);
             gameScene.setTradingEnabled(false);
             gameScene.setEndTurnEnabled(false);
             gameScene.setDiceButtonEnabled(false);
             gameScene.setBuildingEnabled(true);
-        }
+        });
     }
 
+    /** 
+     * Re-configures buttons after the game start sequence is complete
+     */
     public static void gameStartSequenceEnd() {
-        if (gameScene != null) {
+        SwingUtilities.invokeLater(() -> {
             gameScene.gameStartSequenceEnd();
             gameScene.setSaveButtonEnabled(true);
             gameScene.setTradingEnabled(false);
             gameScene.setEndTurnEnabled(false);
             gameScene.setDiceButtonEnabled(true);
             gameScene.setBuildingEnabled(false);
-        }
+        });
     }
 
-    
+    /** 
+     * Blocks until the UI notifies that the player has placed their starter settlement.
+     */
     public static void waitForStarterSettlementPlacement(){
         synchronized (starterPlacementLock) {
             try {
@@ -67,6 +76,9 @@ public class GameIO {
         }
     }
 
+    /** 
+     * Blocks until the UI notifies that the player has placed their starter road.
+     */
     public static void waitForStarterRoadPlacement(){
         synchronized (starterPlacementLock) {
             try {
@@ -77,21 +89,26 @@ public class GameIO {
         }
     }
 
+    /** 
+     * Called by the UI when a starter placement is placed to wake the waiting thread.
+     */
     public static void notifyStarterPlacement() {
         synchronized (starterPlacementLock) {
             starterPlacementLock.notifyAll();
         }
     }
 
+    /** 
+     * Prepares the UI for the beginning of a new turn.
+     */
     public static void beginTurn() {
-        if (gameScene != null) {
-            SwingUtilities.invokeLater(() -> {
-                gameScene.beginTurn();
-                refresh();
+        SwingUtilities.invokeLater(() -> {
+                gameScene.setBuildingEnabled(false);
+                gameScene.setEndTurnEnabled(false);
+                gameScene.setDiceButtonEnabled(true);
+                gameScene.setTradingEnabled(false);
+                gameScene.setSaveButtonEnabled(true);
             });
-            
-        }
-        
     }
 
 
@@ -118,44 +135,55 @@ public class GameIO {
     }
 
 
-
+    /**
+     * Blocks until the UI provides a dice throw result.
+     */
     public static int getDiceThrow(){
         if (gameScene == null) return 0;
         return gameScene.waitForDiceThrow();
     }
 
+    /**
+     * Re-configures buttons after a dice throw is completed.
+     */
     public static void diceThrowEnd() {
-        gameScene.updateStatus();
-        gameScene.setBuildingEnabled(true);
-        gameScene.setEndTurnEnabled(true);
-        gameScene.setDiceButtonEnabled(false);
-        gameScene.setTradingEnabled(true);
-        gameScene.setSaveButtonEnabled(false);
-        refresh();
+        SwingUtilities.invokeLater(() -> {
+            gameScene.updateStatus();
+            gameScene.setBuildingEnabled(true);
+            gameScene.setEndTurnEnabled(true);
+            gameScene.setDiceButtonEnabled(false);
+            gameScene.setTradingEnabled(true);
+            gameScene.setSaveButtonEnabled(false);
+        });
     }
 
     
-
-    public static void addThief(Tile tile){
-        for (Tile t : game.getTileMap()) {
-            if(t.getThief()){
-                t.removeThief();
-                break;
-            }
-        }
-        tile.addThief();
+    /**
+     * Adds the thief to the specified tile, removing it from any other tile that has it.
+     * @param tile the tile to move the thief to
+     */
+    public static void moveThief(Tile tile){
+        game.moveThief(tile);
     }
 
+
+    /**    
+     * Re-configures buttons and UI state at the beginning of a thief movement phase.
+     */
     public static void thiefMovementStart(){
-        gameScene.thiefMovementStart();
-        gameScene.setEndTurnEnabled(false);
-        gameScene.setDiceButtonEnabled(false);
-        gameScene.setBuildingEnabled(false);
-        gameScene.setTradingEnabled(false);
-        gameScene.setSaveButtonEnabled(false);
-        refresh();
+        SwingUtilities.invokeLater(() -> {
+            gameScene.thiefMovementStart();
+            gameScene.setEndTurnEnabled(false);
+            gameScene.setDiceButtonEnabled(false);
+            gameScene.setBuildingEnabled(false);
+            gameScene.setTradingEnabled(false);
+            gameScene.setSaveButtonEnabled(false);
+        });
     }
 
+    /**    
+     * Re-configures buttons and UI state at the end of a thief movement phase.
+     */
     public static void thiefMovementEnd(){
         SwingUtilities.invokeLater(() -> {
             gameScene.thiefMovementEnd();
@@ -164,7 +192,6 @@ public class GameIO {
             gameScene.setBuildingEnabled(true);
             gameScene.setTradingEnabled(true);
             gameScene.setSaveButtonEnabled(true);
-            refresh();
             java.util.concurrent.CountDownLatch latch = thiefMovementLatch.getAndSet(null);
             if (latch != null) {
                 latch.countDown();
@@ -195,21 +222,40 @@ public class GameIO {
         }
     }
 
+    /**
+     * Attempt to perform a trade between the current player and another player.
+     * @param to the player to trade with
+     * @param give the resources to give
+     * @param receive the resources to receive
+     */
     public static void attemptTrade(Player to, Map<Resource, Integer> give, Map<Resource, Integer> receive) {
         game.attemptTrade(to, give, receive);
         refresh();
     }
 
+    /**
+     * Attempt to perform a trade between the current player and the bank.
+     * @param give the resource to give
+     * @param receive the resource to receive
+     */
     public static void attemptTradeWithBank(Resource give, Resource receive){
         game.attemptTradeWithBank(give, receive);
         refresh();
     }
 
+    /**
+     * Buy a development card for the current player.
+     */
     public static void buyDevCard() {
         game.buyDevCard(game.getCurrentPlayer());
         refresh();
     }
 
+    /**
+     * Use a development card for the current player.
+     * Does not check if the card can be used, that is the caller's responsibility.
+     * @param card the card to use ("KNIGHT", "ROAD", "POINT")
+     */
     public static void useDevCard(String card) {
         switch (card) {
             case "KNIGHT":
@@ -224,17 +270,14 @@ public class GameIO {
             default:
                 break;
         }
-        refresh();
     }
 
+    /**
+     * Refresh the game scene UI to reflect the current game state.
+     */
     public static void refresh() {
         if (gameScene != null) {
             gameScene.updateStatus();
         }
     }
-
-    public static GameScene getGameScene() {
-        return gameScene;
-    }
-
 }

@@ -127,13 +127,6 @@ public class GameScene extends BackgroundPanel{
         gamePanel.setInStartSequence(false);
     }
 
-    public void beginTurn() {
-        setBuildingEnabled(false);
-        setEndTurnEnabled(false);
-        setDiceButtonEnabled(true);
-        setTradingEnabled(false);
-        setSaveButtonEnabled(true);
-    }
 
     public int waitForDiceThrow() {
         try {

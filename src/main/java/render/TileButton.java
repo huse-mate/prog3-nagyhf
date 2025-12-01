@@ -24,7 +24,7 @@ public class TileButton extends JButton {
         addActionListener((event) -> {
             if (tile.getThief())
                 return;
-            GameIO.addThief(tile);
+            GameIO.moveThief(tile);
             GameIO.thiefMovementEnd();
         });
     }

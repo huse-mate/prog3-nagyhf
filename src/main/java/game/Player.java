@@ -93,6 +93,11 @@ public class Player {
         return maxRoadLength;
     }
 
+    /**
+     * Get the count of a specific type of development card
+     * @param type the type of development card ("KNIGHT", "POINT", "ROAD")
+     * @return the count of the specified development card type
+     */
     public final int getDevCardCount(String type){
         switch(type){
             case "KNIGHT":
@@ -163,6 +168,10 @@ public class Player {
         cardCount += n;
     }
 
+    /**
+     * Remove and return a random resource from the player's inventory
+     * @return the resource type that was removed
+     */
     public Resource removeRandomResource() {
         int i = rand.nextInt(cardCount);
         for (Resource r : Resource.values()) {
@@ -211,6 +220,9 @@ public class Player {
         roadInventory++;
     }
 
+    /**
+     * Handle the effect of the thief stealing from this player if they have more than 7 cards
+     */
     public void thiefSteal(){
         if(cardCount > 7){
             int toRemove = cardCount/2;
@@ -220,13 +232,20 @@ public class Player {
         }
     }
 
-
+    /**
+     * Check if the player can buy a development card
+     * @return true if the player has enough resources to buy a development card, false otherwise
+     */
     public boolean canBuyDevCard(){
         return  (resources.get(Resource.ORE)>=1 &&
                 resources.get(Resource.WOOL)>=1 && 
                 resources.get(Resource.WHEAT)>=1);
     }
 
+    /**
+     * Check if the player can build a settlement (either by resources or inventory)
+     * @return true if the player has enough resources to build a settlement, false otherwise
+     */
     public boolean canBuildSettlement(){
         return  (resources.get(Resource.BRICK)>=1 &&
                 resources.get(Resource.WOOD)>=1 && 
@@ -235,6 +254,10 @@ public class Player {
                 || settlementInventory > 0;
     }
 
+    /**
+     * Check if the player can build a city (either by resources(need a settlement) or inventory)
+     * @return true if the player has enough resources to build a city, false otherwise
+     */
     public boolean canBuildCity(){
         boolean hasSettlement = false;
         for (Building b : buildings) {
@@ -248,12 +271,21 @@ public class Player {
                 hasSettlement) || cityInventory > 0;
     }
 
+    /**
+     * Check if the player can build a road (either by resources or inventory)
+     * @return true if the player has enough resources to build a road, false otherwise
+     */
     public boolean canBuildRoad(){
         return  (resources.get(Resource.BRICK)>=1 &&
                 resources.get(Resource.WOOD)>=1)
                 || roadInventory > 0;
     }
 
+    /**
+     * Add a building to the player's list of buildings
+     * not intended to be used directly, use Game.newBuilding() instead
+     * @param buildingToAdd the building to add
+     */
     public void addBuilding(Building buildingToAdd){
         if(buildingToAdd.getClass() == City.class){
             for (Building b : buildings) {

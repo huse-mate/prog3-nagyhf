@@ -97,6 +97,13 @@ public class RoadNetwork {
         return adjList;
     }
 
+    /**
+     * 
+     * @return all possible roads in the network, regardless of ownership
+     * The returned roads have null owners
+     * 
+     */
+    
     public List<Road> getAllRoads(){
         Set<Road> allRoads = new HashSet<>();
         for(Coordinate c : roadNodes.keySet()){
@@ -105,15 +112,27 @@ public class RoadNetwork {
         return new ArrayList<>(allRoads);
     }
 
+    /**
+     * Add a new road to the network for player p between coordinates c1 and c2
+     * not intended to be used directly, use Game.newRoad() instead
+     */
     public void newRoad(Player p, Coordinate c1, Coordinate c2){
         adjList.add(new Road(p,c1,c2));
     }
 
+    /**
+     * Add a building to the road network at coordinate c for player p
+     * not intended to be used directly, use Game.newBuilding() instead
+     */
     public void newBuilding(Coordinate c, Player p){
         roadNodes.put(c, p);
     }
 
-
+    /**
+     * Get all neighbouring nodes to coordinate c
+     * @param c the coordinate to get neighbours for
+     * @return a list of neighbouring coordinates
+     */
     private List<Coordinate> getTransforms(Coordinate c){
         List<Coordinate> transforms = new ArrayList<>();
         for (int[][] transform : BUILDING_NEIGHBOUR_TRANSFORM) {
@@ -124,6 +143,12 @@ public class RoadNetwork {
         return transforms;
     }
 
+    /**
+     * Get all possible roads from coordinate c for player p
+     * @param c the coordinate to get roads from
+     * @param p the player to own the roads
+     * @return a list of possible roads from c for player p
+     */
     private List<Road> getRoadsFromHere(Coordinate c, Player p){
         List<Road> roadsFrom = new ArrayList<>();
         getTransforms(c).forEach( dest -> {
@@ -134,6 +159,12 @@ public class RoadNetwork {
         return roadsFrom;
     }
 
+    /**
+     * Get all possible settlement locations for player p
+     * @param p the player to get settlement locations for
+     * @param start whether this is the starting placement phase
+     * @return a set of possible settlement coordinates for player p, if start is true, all road nodes are considered
+     */
     public Set<Coordinate> getPossibleSettlements(Player p, boolean start){
         Set<Coordinate> possibleSettlements;
         if(start){
@@ -158,6 +189,11 @@ public class RoadNetwork {
         return possibleSettlements;
     }
 
+    /**
+     * Get all possible roads for player p
+     * @param p the player to get possible roads for
+     * @return a set of possible roads for player p
+     */
     public Set<Road> getPossibleRoads(Player p){
         HashSet<Road> possibleRoads = new HashSet<>();
         List<Building> buildings = p.getBuildings();
@@ -174,7 +210,11 @@ public class RoadNetwork {
     }
 
 
-
+    /**
+     * Get all nodes connected owned by player p
+     * @param p the player to get nodes for
+     * @return a set of coordinates connected by roads owned by player p
+     */
     private Set<Coordinate> getPlayerNodes(Player p){
         Set<Coordinate> playerNodes = new HashSet<>();
         for (Road road : adjList) {
@@ -186,6 +226,11 @@ public class RoadNetwork {
         return playerNodes;
     }
 
+    /**
+     * Get all roads owned by player p
+     * @param p the player to get roads for
+     * @return a list of roads owned by player p
+     */
     private List<Road> getPlayerRoads(Player p) {
         List<Road> playerRoads = new ArrayList<>();
         for (Road road : adjList) {
@@ -196,6 +241,12 @@ public class RoadNetwork {
         return playerRoads;
     }
 
+    /**
+     * Get all neighbouring nodes to coordinate c, along the given roads
+     * @param c the coordinate to get neighbours for
+     * @param roads the list of roads to consider
+     * @return a map of neighbouring coordinates and the roads connecting them to c
+     */
     public Map<Coordinate, Road> getNeighbouringNodes(Coordinate c, List<Road> roads){
         Map<Coordinate, Road> neighbours = new HashMap<>();
         for (Road road : roads) {
@@ -208,6 +259,12 @@ public class RoadNetwork {
         return neighbours;
     }
 
+    /**
+     * Get the longest path starting from coordinate c, along the given roads
+     * @param c the coordinate to start from
+     * @param roads the list of roads to consider
+     * @return the length of the longest path from c
+     */
     public int longestPathFrom(Coordinate c, List<Road> roads){
         HashMap<Coordinate, Integer> distances = new HashMap<>();
         HashSet<Coordinate> visited = new HashSet<>();
@@ -238,6 +295,11 @@ public class RoadNetwork {
         return farthestNode;
     }
 
+    /**
+     * Get the longest path owned by player p
+     * @param p the player to get the longest path for
+     * @return the length of the longest path owned by player p
+     */
     public int getLongestPath(Player p){
         Set<Coordinate> playerNodes = getPlayerNodes(p);
         int maxRoadLength = 0;

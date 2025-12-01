@@ -26,6 +26,9 @@ public class Tile {
         return thief;
     }
 
+    /**
+     * Give resources to all buildings on this tile if there is no thief
+     */
     public void giveResources(){
         for (Building b : buildings) {
             if(!thief){
@@ -34,6 +37,11 @@ public class Tile {
         }
     }
 
+    /**
+     * Add a building to the tile's list of buildings
+     * not intended to be used directly, use Game.newBuilding() instead
+     * @param buildToAdd the building to add
+     */
     public void addBuilding(Building buildToAdd){
         if(buildToAdd.getClass() == Settlement.class){
             buildings.add(buildToAdd);
