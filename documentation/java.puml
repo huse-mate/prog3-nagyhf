@@ -1,0 +1,180 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+' Trimmed UML: core model only (UI and button classes removed)
+
+abstract class Building {
+  #owner: Player
+  #coordinate: Coordinate
+  #neighbouringTiles: List<Tile>
+  --
+  #Building(owner: Player, coord: Coordinate, neighbours: List<Tile>)
+  +addResource(r: Resource): void
+  +equals(obj: Object): boolean
+}
+
+class City {
+  +City(owner: Player, coord: Coordinate, neighbours: List<Tile>)
+  +addResource(r: Resource): void
+}
+
+class Settlement {
+  +Settlement(owner: Player, coord: Coordinate, neighbours: List<Tile>)
+  +addResource(r: Resource): void
+}
+
+class RoadNetwork {
+  -adjList: List<Road>
+  -roadNodes: Map<Coordinate,Player>
+  --
+  +RoadNetwork()
+  +newRoad(p: Player, c1: Coordinate, c2: Coordinate): void
+  +newBuilding(c: Coordinate, p: Player): void
+  +getPossibleSettlements(p: Player, start: boolean): Set<Coordinate>
+  +getPossibleRoads(p: Player): Set<Road>
+  +getLongestPath(p: Player): int
+}
+
+class Road {
+  -owner: Player
+  -c1: Coordinate
+  -c2: Coordinate
+  --
+  +Road(owner: Player, c1: Coordinate, c2: Coordinate)
+  +getOwner(): Player
+  +equals(o: Object): boolean
+}
+
+class Tile {
+  -num: int
+  -resource: Resource
+  -buildings: List<Building>
+  -thief: boolean
+  --
+  +Tile(n: int, r: Resource)
+  +getNum(): int
+  +getType(): Resource
+  +giveResources(): void
+  +addBuilding(buildToAdd: Building): void
+  +addThief(): void
+  +removeThief(): void
+}
+
+class Player {
+  -id: int
+  -resources: Map<Resource,Integer>
+  -devCardCount: int
+  -points: int
+  -knightsPlayed: int
+  -inventory: Map<String,Integer>
+  -buildings: List<Building>
+  --
+  +Player(i: int)
+  +addResource(r: Resource, n: int): void
+  +removeRandomResource(): Resource
+  +addSettlementForStart(): void
+  +addRoadForStart(): void
+  +addCityForStart(): void
+  +thiefSteal(): void
+}
+
+class TileMap {
+  -tiles: Map<Coordinate,Tile>
+  --
+  +TileMap()
+  +TileMap(tilesMap: Map<Coordinate,Tile>)
+  +get(c: Coordinate): Tile
+  +getNeighbouringTiles(loc: Coordinate): List<Tile>
+}
+
+class Game {
+  -tileMap: TileMap
+  -roads: RoadNetwork
+  -players: List<Player>
+  -curPlayer: Player
+  -curIndex: int
+  --
+  +Game()
+  +fromState(s: GameState): Game
+  +diceThrow(): void
+  +thiefMovement(curPlayer: Player): void
+  +getThiefVictims(cur: Player): Set<Player>
+  +attemptTrade(to: Player, give: Map<Resource,Integer>, receive: Map<Resource,Integer>): void
+  +attemptTradeWithBank(give: Resource, receive: Resource): void
+  +newBuilding(p: Player, type: Building.Types, loc: Coordinate): void
+  +newRoad(p: Player, c1: Coordinate, c2: Coordinate): void
+}
+
+class Coordinate {
+  -x: int
+  -y: int
+  -corner: int
+  --
+  +Coordinate(x: int, y: int, corner: int)
+}
+
+class GameScene {
+  -frame: MainFrame
+  -game: Game
+  -materialsPanel: MaterialsPanel
+  -gamePanel: GamePanel
+  -dicePanel: DicePanel
+  -playersPanel: PlayersPanel
+  -tradePanel: TradePanel
+  -SIDEWIDTH: int {static}
+  --
+  +GameScene(frame: MainFrame, game: Game)
+  +updateStatus(): void
+  +gameOver(winner: Player): void
+  +saveGame(): void
+  +loadPreviousGame(): void
+  +startNewGame(): void
+  +setGame(game: Game): void
+  +startGameThread(newGame: boolean): void
+  +gameStartSequenceBegin(): void
+  +gameStartSequenceEnd(): void
+  +waitForDiceThrow(): int
+  +thiefMovementStart(): void
+  +thiefMovementEnd(): void
+  +setEndTurnEnabled(enabled: boolean): void
+  +setBuildingEnabled(enabled: boolean): void
+  +setTradingEnabled(enabled: boolean): void
+  +setDiceButtonEnabled(enabled: boolean): void
+  +setSaveButtonEnabled(enabled: boolean): void
+  +setupRightSide(): JPanel
+  +setupLeftSide(): JPanel
+  +setupTop(): JPanel
+  +setupBottom(): JPanel
+  +paintComponent(g: Graphics): void
+}
+
+' Relationships (trimmed)
+Building --> Player
+Building --> Coordinate
+Building o-- Tile
+City --|> Building
+Settlement --|> Building
+RoadNetwork o-- Road
+RoadNetwork o-- Coordinate
+RoadNetwork o-- Player
+Road *-- Player
+Road *-- Coordinate
+Tile o-- Building
+Player o-- Building
+TileMap o-- Coordinate
+TileMap o-- Tile
+Game *-- TileMap
+Game *-- RoadNetwork
+Game o-- Player
+Game ..> GameScene
+
+' GameScene component associations
+GameScene o-- MainFrame
+GameScene o-- GamePanel
+GameScene o-- DicePanel
+GameScene o-- PlayersPanel
+GameScene o-- TradePanel
+GameScene o-- MaterialsPanel
+
+@enduml
