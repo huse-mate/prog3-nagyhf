@@ -49,6 +49,9 @@ public class GameScene extends BackgroundPanel{
         add(gameContainer, BorderLayout.CENTER);
     }
 
+    /**
+     * Update all status panels to reflect the current game state.
+     */
     public void updateStatus(){
         game.getPlayers().forEach( player -> {
             playersPanel.updateStatus(player);
@@ -60,11 +63,17 @@ public class GameScene extends BackgroundPanel{
         repaint();
     }
 
+    /**
+     * Handle game over: show the win scene with the given winner.
+     */
     public void gameOver(Player winner) {
         frame.setWinner(winner);
         frame.showScene(Scene.WIN);
     }
 
+    /** 
+     * Save the current game state to a predefined location.
+     */
     public void saveGame(){
         try {
             SaveManager.save(Path.of("save/prev.json"), game);
@@ -73,6 +82,9 @@ public class GameScene extends BackgroundPanel{
         }
     }
 
+    /** 
+     * Load the previous game state from a predefined location.
+     */
     public void loadPreviousGame(){
         try {
             GameState loadedState = SaveManager.load(Path.of("save/prev.json"));
@@ -86,6 +98,9 @@ public class GameScene extends BackgroundPanel{
         startGameThread(false);
     }
 
+    /** 
+     * Start a new game with the current game instance.
+     */
     public void startNewGame() {
         GameIO.setGame(game);
         setGame(game);
@@ -95,6 +110,9 @@ public class GameScene extends BackgroundPanel{
         
     }
 
+    /** 
+     * Set the current game instance.
+     */
     public void setGame(Game game){
         gamePanel.setGame(game);
         dicePanel.setEndTurnListener(() -> {
@@ -106,6 +124,9 @@ public class GameScene extends BackgroundPanel{
         dicePanel.setSaveListener(this::saveGame);
     }
 
+    /** 
+     * Start the game thread, running either a new game or loading an existing one.
+     */
     public void startGameThread(boolean newGame){
         Thread gameThread = new Thread(() -> {
             // run the startup placement sequence
@@ -119,15 +140,24 @@ public class GameScene extends BackgroundPanel{
         gameThread.start();
     }
 
+    /** 
+     * Indicate the beginning of the game start sequence.
+     */
     public void gameStartSequenceBegin() {
         gamePanel.setInStartSequence(true);
     }
     
+    /** 
+     * Indicate the end of the game start sequence.
+     */
     public void gameStartSequenceEnd() {
         gamePanel.setInStartSequence(false);
     }
 
 
+    /**     
+     * Wait for the player to throw the dice, returning the result.
+     */
     public int waitForDiceThrow() {
         try {
             return dicePanel.takeThrow();
@@ -137,38 +167,54 @@ public class GameScene extends BackgroundPanel{
         }
     }
 
+    /** 
+     * Indicate the start of thief movement phase.
+     */
     public void thiefMovementStart() {
         if (gamePanel != null) {
             gamePanel.thiefMovementStart();
         }
     }
 
+    /** 
+     * Indicate the end of thief movement phase.
+     */
     public void thiefMovementEnd() {
         if (gamePanel != null) {
             gamePanel.thiefMovementEnd();
         }
     }
 
-     /** Enable/disable the End Turn button from outside (e.g., after a throw). */
-
+    /** 
+     * Enable/disable the End Turn button from outside (e.g., after a throw). 
+     */
     public void setEndTurnEnabled(boolean enabled) {
         if (dicePanel != null) {
             dicePanel.setEndTurnEnabled(enabled);
         }
     }
 
+    /** 
+     * Enable/disable building actions from outside (e.g., during certain phases). 
+     */
     public void setBuildingEnabled(boolean enabled) {
         if (gamePanel != null) {
             gamePanel.setBuildingEnabled(enabled);
         }
     }
 
+    /** 
+     * Enable/disable trading actions from outside (e.g., during certain phases). 
+     */
     public void setTradingEnabled(boolean enabled) {
         if (tradePanel != null) {
             tradePanel.setEnabled(enabled);
         }
     }
 
+    /** 
+     * Enable/disable the dice button from outside (e.g., during certain phases). 
+     */
     public void setDiceButtonEnabled(boolean enabled) {
         if (dicePanel != null) {
             dicePanel.setDiceButtonEnabled(enabled);
@@ -178,6 +224,9 @@ public class GameScene extends BackgroundPanel{
         }
     }
 
+    /** 
+     * Enable/disable the save button from outside (e.g., during certain phases). 
+     */
     public void setSaveButtonEnabled(boolean enabled) {
         if (dicePanel != null) {
             dicePanel.setSaveButtonEnabled(enabled);
